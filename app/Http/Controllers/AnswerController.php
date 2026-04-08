@@ -5,15 +5,21 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreAnswerRequest;
 use App\Models\Answer;
 use App\Models\Question;
-use Illuminate\Http\Request;
 
 class AnswerController extends Controller
 {
     /**
-     * Store a newly created answer in storage.
+     * Enregistre une nouvelle réponse
      */
     public function store(StoreAnswerRequest $request, Question $question)
     {
+        // Vérifier que la question n'est pas fermée
+        if ($question->is_closed) {
+            return redirect()->route('questions.show', $question)
+                ->with('error', 'Cette question est fermée et n\'accepte plus de réponses.');
+        }
+
+        // Créer la réponse
         $answer = $question->answers()->create([
             'user_id' => auth()->id(),
             'body' => $request->body,
@@ -24,7 +30,7 @@ class AnswerController extends Controller
     }
 
     /**
-     * Mark an answer as accepted (only by question author).
+     * Marque une réponse comme acceptée (uniquement par l'auteur de la question)
      */
     public function accept(Answer $answer)
     {
@@ -35,7 +41,7 @@ class AnswerController extends Controller
             abort(403, 'Vous n\'êtes pas autorisé à accepter cette réponse.');
         }
 
-        // Désaccepter toutes les autres réponses de cette question
+        // Désaccepter toutes les autres réponses
         $question->answers()->update(['is_accepted' => false]);
 
         // Accepter cette réponse
