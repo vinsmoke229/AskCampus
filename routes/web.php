@@ -14,8 +14,27 @@ Route::get('/', function () {
     return redirect()->route('questions.index');
 });
 
-// Dashboard (nécessite authentification) - Page d'accueil personnalisée
+// Dashboard (nécessite authentification)
 Route::get('/dashboard', function () {
+    // Si l'utilisateur est modérateur, afficher le dashboard de modération
+    if (auth()->user()->isModerator()) {
+        $data = [
+            'modStats' => [
+                'totalQuestions' => \App\Models\Question::count(),
+                'openQuestions'  => \App\Models\Question::where('is_solved', false)->where('is_closed', false)->count(),
+                'closedQuestions'=> \App\Models\Question::where('is_closed', true)->count(),
+                'totalAnswers'   => \App\Models\Answer::count(),
+                'totalUsers'     => \App\Models\User::count(),
+                'totalTags'      => \App\Models\Tag::count(),
+            ],
+            'recentQuestions' => \App\Models\Question::with(['user', 'tags', 'answers'])->latest()->take(15)->get(),
+            'recentAnswers'   => \App\Models\Answer::with(['user', 'question'])->latest()->take(10)->get(),
+            'recentUsers'     => \App\Models\User::latest()->take(8)->get(),
+        ];
+        return view('dashboard', $data);
+    }
+    
+    // Sinon, afficher la page d'accueil personnalisée
     return view('home');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
