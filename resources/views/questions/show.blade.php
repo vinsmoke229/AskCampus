@@ -246,6 +246,21 @@
                             <button class="post-action-btn">Suivre</button>
                             
                             @auth
+                                {{-- Boutons Edit et Delete pour le propriétaire --}}
+                                @if(auth()->id() === $question->user_id)
+                                    <a href="{{ route('questions.edit', $question) }}" class="post-action-btn" style="color:#0074cc;">
+                                        Éditer
+                                    </a>
+                                    <form method="POST" action="{{ route('questions.destroy', $question) }}" style="display:inline;"
+                                          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette question ?')">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="post-action-btn" style="color:#d93025;">
+                                            Supprimer
+                                        </button>
+                                    </form>
+                                @endif
+                                
+                                {{-- Boutons modérateur --}}
                                 @if(auth()->user()->isModerator())
                                     <div class="mod-actions">
                                         @if($question->is_closed)
@@ -259,11 +274,13 @@
                                                 <button type="submit" class="mod-btn mod-btn-warn">Fermer</button>
                                             </form>
                                         @endif
-                                        <form method="POST" action="{{ route('questions.destroy', $question) }}" style="display:inline;"
-                                              onsubmit="return confirm('Supprimer cette question ?')">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="mod-btn mod-btn-danger">Supprimer</button>
-                                        </form>
+                                        @if(auth()->id() !== $question->user_id)
+                                            <form method="POST" action="{{ route('questions.destroy', $question) }}" style="display:inline;"
+                                                  onsubmit="return confirm('Supprimer cette question ?')">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="mod-btn mod-btn-danger">Supprimer</button>
+                                            </form>
+                                        @endif
                                     </div>
                                 @endif
                             @endauth

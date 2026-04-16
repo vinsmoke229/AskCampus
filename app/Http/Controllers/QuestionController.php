@@ -88,6 +88,46 @@ class QuestionController extends Controller
     }
 
     /**
+     * Affiche le formulaire d'édition
+     */
+    public function edit(Question $question)
+    {
+        // Vérifier que l'utilisateur est le propriétaire
+        if (auth()->id() !== $question->user_id && !auth()->user()->isModerator()) {
+            abort(403, 'Vous ne pouvez pas éditer cette question.');
+        }
+
+        $tags = Tag::all();
+        return view('questions.edit', compact('question', 'tags'));
+    }
+
+    /**
+     * Met à jour une question
+     */
+    public function update(StoreQuestionRequest $request, Question $question)
+    {
+        // Vérifier que l'utilisateur est le propriétaire
+        if (auth()->id() !== $question->user_id && !auth()->user()->isModerator()) {
+            abort(403, 'Vous ne pouvez pas éditer cette question.');
+        }
+
+        $question->update([
+            'title' => $request->title,
+            'body' => $request->body,
+        ]);
+
+        // Synchroniser les tags
+        if ($request->filled('tags')) {
+            $question->tags()->sync($request->tags);
+        } else {
+            $question->tags()->detach();
+        }
+
+        return redirect()->route('questions.show', $question)
+            ->with('success', 'Question mise à jour avec succès.');
+    }
+
+    /**
      * Affiche une question avec ses réponses
      */
     public function show(Question $question)

@@ -65,6 +65,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/questions/create', [QuestionController::class, 'create'])->name('questions.create');
     Route::post('/questions', [QuestionController::class, 'store'])->name('questions.store');
     
+    // Édition de question (propriétaire uniquement)
+    Route::get('/questions/{question}/edit', [QuestionController::class, 'edit'])->name('questions.edit');
+    Route::patch('/questions/{question}', [QuestionController::class, 'update'])->name('questions.update');
+    
     // API pour recherche de questions similaires (anti-doublon)
     Route::get('/api/questions/similar', [QuestionController::class, 'searchSimilar'])->name('questions.similar');
 
