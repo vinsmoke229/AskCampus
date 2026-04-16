@@ -42,8 +42,18 @@ class QuestionController extends Controller
             }
         }
 
-        // Tri par date décroissante et pagination
-        $questions = $query->latest()->paginate(15);
+        // Tri
+        if ($request->input('sort') === 'active') {
+            // Questions avec l'activité la plus récente (dernière réponse)
+            $query->leftJoin('answers as a_sort', 'questions.id', '=', 'a_sort.question_id')
+                  ->select('questions.*')
+                  ->groupBy('questions.id')
+                  ->orderByRaw('COALESCE(MAX(a_sort.created_at), questions.created_at) DESC');
+        } else {
+            $query->latest();
+        }
+
+        $questions = $query->paginate(15);
 
         return view('questions.index', compact('questions'));
     }

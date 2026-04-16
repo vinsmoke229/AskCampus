@@ -41,11 +41,22 @@ class AnswerController extends Controller
             abort(403, 'Vous n\'êtes pas autorisé à accepter cette réponse.');
         }
 
+        // Si une version précédente de la réponse était déjà acceptée, annuler la réputation
+        $previouslyAccepted = $question->answers()->where('is_accepted', true)->first();
+        if ($previouslyAccepted) {
+            $previouslyAccepted->user?->decrement('reputation', 15);
+            $question->user?->decrement('reputation', 2);
+        }
+
         // Désaccepter toutes les autres réponses
         $question->answers()->update(['is_accepted' => false]);
 
         // Accepter cette réponse
         $answer->update(['is_accepted' => true]);
+
+        // Attribuer la réputation (+15 pour l'auteur de la réponse, +2 pour l'auteur de la question)
+        $answer->user?->increment('reputation', 15);
+        $question->user?->increment('reputation', 2);
 
         // Marquer la question comme résolue
         $question->update(['is_solved' => true]);

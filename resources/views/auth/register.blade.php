@@ -1,52 +1,56 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
-        @csrf
+<h2>Rejoignez AskCampus 🎓</h2>
+<p class="auth-sub">Créez votre compte et commencez à apprendre avec la communauté</p>
 
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
-        </div>
+<form method="POST" action="{{ route('register') }}">
+    @csrf
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+    <div class="field">
+        <label for="name">Nom complet</label>
+        <input id="name" type="text" name="name"
+               value="{{ old('name') }}" required autofocus
+               placeholder="Prénom Nom">
+        @error('name')
+            <p class="field-error">{{ $message }}</p>
+        @enderror
+    </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+    <div class="field">
+        <label for="email">Adresse email</label>
+        <input id="email" type="email" name="email"
+               value="{{ old('email') }}" required
+               placeholder="vous@universite.com">
+        @error('email')
+            <p class="field-error">{{ $message }}</p>
+        @enderror
+    </div>
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
+    <div class="field">
+        <label for="password">Mot de passe</label>
+        <input id="password" type="password" name="password"
+               required autocomplete="new-password"
+               placeholder="Minimum 8 caractères">
+        @error('password')
+            <p class="field-error">{{ $message }}</p>
+        @enderror
+    </div>
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+    <div class="field">
+        <label for="password_confirmation">Confirmer le mot de passe</label>
+        <input id="password_confirmation" type="password"
+               name="password_confirmation" required
+               autocomplete="new-password"
+               placeholder="Répétez votre mot de passe">
+        @error('password_confirmation')
+            <p class="field-error">{{ $message }}</p>
+        @enderror
+    </div>
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+    <button type="submit" class="btn-submit">
+        Créer mon compte
+    </button>
+</form>
 
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
-
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+<div class="auth-footer">
+    Déjà inscrit ?
+    <a href="{{ route('login') }}">Se connecter</a>
+</div>

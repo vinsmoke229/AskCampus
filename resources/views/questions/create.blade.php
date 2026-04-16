@@ -1,220 +1,335 @@
 <x-app-layout>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Main Form -->
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                    <h1 class="text-3xl font-bold text-gray-900 mb-6">Poser une question</h1>
+<style>
+    .create-wrap  { display:flex; gap:20px; align-items:flex-start; }
+    .create-form  { flex:1; min-width:0; }
+    .create-aside { width:280px; flex-shrink:0; position:sticky; top:calc(52px + 24px); }
 
-                    <form action="{{ route('questions.store') }}" method="POST">
-                        @csrf
+    .form-step {
+        background:#fff; border:1px solid #e5e7eb; border-radius:12px;
+        margin-bottom:14px; overflow:hidden;
+        transition:box-shadow .15s, border-color .15s;
+    }
+    .form-step:focus-within {
+        border-color:#5046e5;
+        box-shadow:0 0 0 3px rgba(80,70,229,.1);
+    }
+    .form-step-head {
+        display:flex; align-items:center; gap:8px;
+        padding:12px 16px; background:#f9fafb;
+        border-bottom:1px solid #e5e7eb;
+        font-size:13px; font-weight:700; color:#374151;
+    }
+    .form-step-num {
+        width:22px; height:22px; border-radius:50%;
+        background:linear-gradient(135deg,#5046e5,#7c3aed);
+        color:#fff; font-size:11px; font-weight:800;
+        display:flex; align-items:center; justify-content:center;
+        flex-shrink:0;
+    }
+    .form-step-body { padding:16px; }
 
-                        <!-- Title -->
-                        <div class="mb-6">
-                            <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Titre de votre question
-                            </label>
-                            <input 
-                                type="text" 
-                                id="title"
-                                name="title" 
-                                value="{{ old('title') }}"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="Ex: Comment implémenter l'authentification JWT en Laravel ?"
-                                required
-                            >
-                            @error('title')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                            <p class="mt-2 text-sm text-gray-600">
-                                Soyez précis et imaginez que vous posez la question à une autre personne.
-                            </p>
-                        </div>
+    .form-label { display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:6px; }
+    .form-hint  { font-size:12px; color:#9ca3af; margin-top:5px; }
+    .form-error { font-size:12px; color:#dc2626; margin-top:5px; font-weight:600; }
 
-                        <!-- Similar Questions Alert (Anti-doublon) -->
-                        <div id="similar-questions" class="hidden mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                            <div class="flex items-start">
-                                <svg class="w-5 h-5 text-yellow-600 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                </svg>
-                                <div class="flex-1">
-                                    <h3 class="text-sm font-semibold text-yellow-800 mb-2">
-                                        Questions similaires trouvées
-                                    </h3>
-                                    <p class="text-sm text-yellow-700 mb-3">
-                                        Avant de poster, vérifiez si votre question n'a pas déjà été posée :
-                                    </p>
-                                    <ul id="similar-questions-list" class="space-y-2"></ul>
-                                </div>
-                            </div>
-                        </div>
+    .form-input, .form-textarea, .form-select {
+        display:block; width:100%; padding:10px 12px;
+        font-size:13px; color:#111827;
+        border:1.5px solid #e5e7eb; border-radius:9px;
+        background:#fff; outline:none; box-sizing:border-box;
+        transition:border-color .15s, box-shadow .15s;
+        font-family:inherit;
+    }
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+        border-color:#5046e5;
+        box-shadow:0 0 0 3px rgba(80,70,229,.12);
+    }
+    .form-input::placeholder, .form-textarea::placeholder { color:#9ca3af; }
+    .form-textarea { resize:vertical; line-height:1.6; }
+    .form-select   { cursor:pointer; }
 
-                        <!-- Body -->
-                        <div class="mb-6">
-                            <label for="body" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Détails de votre question
-                            </label>
-                            <textarea 
-                                id="body"
-                                name="body" 
-                                rows="10"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="Décrivez votre problème en détail. Incluez ce que vous avez déjà essayé et les messages d'erreur si applicable."
-                                required
-                            >{{ old('body') }}</textarea>
-                            @error('body')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
+    /* Tag checkboxes */
+    .tag-grid { display:flex; flex-wrap:wrap; gap:8px; }
+    .tag-check { display:none; }
+    .tag-check + label {
+        display:inline-flex; align-items:center;
+        padding:5px 12px; border-radius:20px;
+        font-size:12px; font-weight:600; color:#5046e5;
+        background:#eef2ff; border:1.5px solid #c7d2fe;
+        cursor:pointer; transition:all .12s;
+        user-select:none;
+    }
+    .tag-check + label:hover { background:#e0e7ff; }
+    .tag-check:checked + label {
+        background:#5046e5; color:#fff; border-color:#5046e5;
+    }
 
-                        <!-- Tags -->
-                        <div class="mb-6">
-                            <label for="tags" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Tags (optionnel)
-                            </label>
-                            <select 
-                                name="tags[]" 
-                                id="tags"
-                                multiple
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            >
-                                @foreach(\App\Models\Tag::all() as $tag)
-                                    <option value="{{ $tag->id }}">{{ $tag->name }}</option>
-                                @endforeach
-                            </select>
-                            @error('tags')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                            <p class="mt-2 text-sm text-gray-600">
-                                Maintenez Ctrl (ou Cmd) pour sélectionner plusieurs tags.
-                            </p>
-                        </div>
+    /* Similar questions alert */
+    .similar-alert {
+        background:#fffbeb; border:1.5px solid #fde68a; border-radius:10px;
+        padding:12px 14px; margin-top:10px; display:none;
+    }
+    .similar-alert.visible { display:block; }
+    .similar-alert h4 { font-size:13px; font-weight:700; color:#92400e; margin:0 0 6px; }
+    .similar-alert li  { font-size:12px; color:#78350f; padding:3px 0; }
+    .similar-alert a   { color:#1d4ed8; }
+    .similar-alert a:hover { color:#1e40af; }
 
-                        <!-- Submit Button -->
-                        <div class="flex items-center justify-between">
-                            <a href="{{ route('questions.index') }}" class="text-gray-600 hover:text-gray-900">
-                                Annuler
-                            </a>
-                            <button 
-                                type="submit" 
-                                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium shadow-sm"
-                            >
-                                Publier la question
-                            </button>
-                        </div>
-                    </form>
+    /* Aside widgets */
+    .aside-widget {
+        background:#fff; border:1px solid #e5e7eb; border-radius:12px;
+        margin-bottom:14px; overflow:hidden;
+    }
+    .aside-widget-head {
+        display:flex; align-items:center; gap:7px;
+        padding:11px 14px; background:#fefce8; border-bottom:1.5px solid #fde68a;
+        font-size:12px; font-weight:700; color:#92400e;
+    }
+    .aside-widget-body { padding:14px; }
+    .tip-item { display:flex; gap:10px; margin-bottom:12px; }
+    .tip-item:last-child { margin-bottom:0; }
+    .tip-num {
+        width:20px; height:20px; border-radius:50%;
+        background:#eef2ff; color:#5046e5; font-size:10px;
+        font-weight:800; display:flex; align-items:center; justify-content:center;
+        flex-shrink:0; margin-top:1px;
+    }
+    .tip-item p { font-size:12px; color:#374151; margin:0; line-height:1.5; }
+    .tip-item strong { color:#1f2937; font-size:13px; display:block; margin-bottom:2px; }
+    .rule-item { display:flex; align-items:flex-start; gap:7px; padding:5px 0; font-size:12px; color:#374151; }
+    .rule-item svg { flex-shrink:0; margin-top:1px; }
+</style>
+
+<div class="create-wrap">
+
+    {{-- ── Main Form ── --}}
+    <div class="create-form">
+
+        <div style="margin-bottom:20px;">
+            <h1 style="font-size:22px;font-weight:800;color:#111827;margin:0 0 4px;">Poser une question</h1>
+            <p style="font-size:13px;color:#9ca3af;margin:0;">
+                Partagez votre problème avec la communauté AskCampus 🎓
+            </p>
+        </div>
+
+        <form action="{{ route('questions.store') }}" method="POST">
+            @csrf
+
+            {{-- Step 1 – Title --}}
+            <div class="form-step">
+                <div class="form-step-head">
+                    <span class="form-step-num">1</span>
+                    Titre de votre question
+                </div>
+                <div class="form-step-body">
+                    <label for="title" class="form-label">
+                        Titre <span style="color:#dc2626;">*</span>
+                    </label>
+                    <input type="text" id="title" name="title" class="form-input"
+                           value="{{ old('title') }}"
+                           placeholder="Ex : Comment implémenter l'authentification JWT en Laravel ?"
+                           required autocomplete="off">
+                    @error('title')
+                        <p class="form-error">{{ $message }}</p>
+                    @else
+                        <p class="form-hint">Soyez précis et concis. Imaginez poser la question à un collègue.</p>
+                    @enderror
+
+                    {{-- Similar Questions --}}
+                    <div id="similar-questions" class="similar-alert">
+                        <h4>⚠️ Questions similaires trouvées</h4>
+                        <p style="font-size:12px;color:#78350f;margin:0 0 6px;">Vérifiez si votre question n'a pas déjà une réponse :</p>
+                        <ul id="similar-questions-list" style="margin:0;padding-left:16px;list-style:none;"></ul>
+                    </div>
                 </div>
             </div>
 
-            <!-- Tips Sidebar -->
-            <div class="lg:col-span-1">
-                <div class="bg-blue-50 rounded-lg border border-blue-200 p-6 sticky top-24">
-                    <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center">
-                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
-                        </svg>
-                        Conseils pour une bonne question
-                    </h3>
+            {{-- Step 2 – Body --}}
+            <div class="form-step">
+                <div class="form-step-head">
+                    <span class="form-step-num">2</span>
+                    Détails de votre question
+                </div>
+                <div class="form-step-body">
+                    <label for="body" class="form-label">
+                        Description <span style="color:#dc2626;">*</span>
+                    </label>
+                    <textarea id="body" name="body" class="form-textarea" rows="12"
+                              required
+                              placeholder="Décrivez votre problème en détail…&#10;&#10;• Le contexte et ce que vous essayez d'accomplir&#10;• Ce que vous avez déjà essayé&#10;• Les messages d'erreur le cas échéant&#10;• Le code pertinent">{{ old('body') }}</textarea>
+                    @error('body')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
 
-                    <div class="space-y-4">
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold mr-3">
-                                1
-                            </div>
+            {{-- Step 3 – Tags --}}
+            <div class="form-step">
+                <div class="form-step-head">
+                    <span class="form-step-num">3</span>
+                    Tags
+                    <span style="font-size:11px;font-weight:400;color:#9ca3af;">— facultatif, max 5</span>
+                </div>
+                <div class="form-step-body">
+                    <div class="tag-grid">
+                        @foreach(\App\Models\Tag::orderBy('name')->get() as $tag)
                             <div>
-                                <h4 class="font-semibold text-gray-900 text-sm mb-1">Titre clair</h4>
-                                <p class="text-sm text-gray-700">Résumez votre problème en une phrase concise et descriptive.</p>
+                                <input type="checkbox" name="tags[]" value="{{ $tag->id }}"
+                                       id="tag_{{ $tag->id }}" class="tag-check"
+                                       {{ in_array($tag->id, old('tags', [])) ? 'checked' : '' }}>
+                                <label for="tag_{{ $tag->id }}">{{ $tag->name }}</label>
                             </div>
-                        </div>
-
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold mr-3">
-                                2
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-gray-900 text-sm mb-1">Contexte complet</h4>
-                                <p class="text-sm text-gray-700">Expliquez ce que vous essayez de faire et pourquoi.</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold mr-3">
-                                3
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-gray-900 text-sm mb-1">Code et erreurs</h4>
-                                <p class="text-sm text-gray-700">Incluez le code pertinent et les messages d'erreur complets.</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold mr-3">
-                                4
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-gray-900 text-sm mb-1">Tentatives</h4>
-                                <p class="text-sm text-gray-700">Mentionnez ce que vous avez déjà essayé pour résoudre le problème.</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold mr-3">
-                                5
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-gray-900 text-sm mb-1">Tags appropriés</h4>
-                                <p class="text-sm text-gray-700">Utilisez des tags pertinents pour aider les autres à trouver votre question.</p>
-                            </div>
-                        </div>
+                        @endforeach
                     </div>
+                    @error('tags')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
 
-                    <div class="mt-6 pt-6 border-t border-blue-200">
-                        <p class="text-sm text-gray-700">
-                            <span class="font-semibold">💡 Astuce:</span> Une question bien formulée obtient généralement une réponse en moins de 30 minutes !
-                        </p>
-                    </div>
+            {{-- Actions --}}
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+                <a href="{{ route('questions.index') }}"
+                   style="font-size:13px;color:#9ca3af;text-decoration:none;display:flex;align-items:center;gap:4px;"
+                   onmouseover="this.style.color='#374151'" onmouseout="this.style.color='#9ca3af'">
+                    ← Annuler
+                </a>
+                <button type="submit"
+                        style="display:inline-flex;align-items:center;gap:7px;padding:11px 22px;
+                               font-size:14px;font-weight:700;color:#fff;border:none;border-radius:10px;
+                               background:linear-gradient(135deg,#5046e5,#7c3aed);
+                               box-shadow:0 4px 12px rgba(80,70,229,.35);cursor:pointer;line-height:1;"
+                        onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
+                    <svg style="width:15px;height:15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                    </svg>
+                    Publier la question
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+    {{-- ── Right sidebar ── --}}
+    <aside class="create-aside">
+
+        {{-- Tips --}}
+        <div class="aside-widget">
+            <div class="aside-widget-head">
+                <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                </svg>
+                Comment poser une bonne question
+            </div>
+            <div class="aside-widget-body">
+                <div class="tip-item">
+                    <span class="tip-num">1</span>
+                    <p><strong>Titre explicite</strong>Résumez votre problème en une phrase claire et précise</p>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-num">2</span>
+                    <p><strong>Contexte complet</strong>Expliquez ce vous essayez d'accomplir et le contexte</p>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-num">3</span>
+                    <p><strong>Code et erreurs</strong>Incluez le code pertinent et les messages d'erreur</p>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-num">4</span>
+                    <p><strong>Vos tentatives</strong>Mentionnez ce que vous avez déjà essayé</p>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Script pour la détection de doublons -->
-    <script>
-        const titleInput = document.getElementById('title');
-        const similarQuestionsDiv = document.getElementById('similar-questions');
-        const similarQuestionsList = document.getElementById('similar-questions-list');
-        let searchTimeout;
+        {{-- Rules --}}
+        <div class="aside-widget">
+            <div class="aside-widget-head" style="background:#f0fdf4;border-color:#bbf7d0;color:#166534;">
+                <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Règles de la communauté
+            </div>
+            <div class="aside-widget-body">
+                <div class="rule-item">
+                    <svg style="width:13px;height:13px;color:#059669;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Soyez respectueux et courtois
+                </div>
+                <div class="rule-item">
+                    <svg style="width:13px;height:13px;color:#059669;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Vérifiez les doublons avant de poster
+                </div>
+                <div class="rule-item">
+                    <svg style="width:13px;height:13px;color:#059669;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Acceptez la meilleure réponse reçue
+                </div>
+                <div class="rule-item">
+                    <svg style="width:13px;height:13px;color:#059669;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Utilisez des tags pertinents
+                </div>
+            </div>
+        </div>
 
-        // Recherche de questions similaires lors de la saisie du titre
-        titleInput.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            const title = this.value;
+    </aside>
+</div>
 
-            // Attendre que l'utilisateur arrête de taper
-            searchTimeout = setTimeout(() => {
-                if (title.length >= 10) {
-                    fetch(`{{ route('questions.similar') }}?title=${encodeURIComponent(title)}`)
-                        .then(response => response.json())
-                        .then(questions => {
-                            if (questions.length > 0) {
-                                // Afficher les questions similaires
-                                similarQuestionsList.innerHTML = questions.map(q => `
-                                    <li class="text-sm">
-                                        <a href="${q.url}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center">
-                                            ${q.is_solved ? '<svg class="w-4 h-4 text-green-600 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>' : ''}
-                                            ${q.title}
-                                        </a>
-                                    </li>
-                                `).join('');
-                                similarQuestionsDiv.classList.remove('hidden');
-                            } else {
-                                similarQuestionsDiv.classList.add('hidden');
-                            }
-                        });
-                } else {
-                    similarQuestionsDiv.classList.add('hidden');
-                }
-            }, 500); // Attendre 500ms après la dernière frappe
+{{-- Script détection doublons --}}
+<script>
+    const titleInput = document.getElementById('title');
+    const similarDiv  = document.getElementById('similar-questions');
+    const similarList = document.getElementById('similar-questions-list');
+    let searchTimeout;
+
+    titleInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        const title = this.value.trim();
+
+        searchTimeout = setTimeout(() => {
+            if (title.length >= 10) {
+                fetch(`{{ route('questions.similar') }}?title=${encodeURIComponent(title)}`)
+                    .then(r => r.json())
+                    .then(questions => {
+                        if (questions.length > 0) {
+                            similarList.innerHTML = questions.map(q => `
+                                <li style="display:flex;align-items:flex-start;gap:6px;padding:4px 0;">
+                                    <span style="flex-shrink:0;margin-top:2px;">${q.is_solved ? '✅' : '🔵'}</span>
+                                    <a href="${q.url}" target="_blank"
+                                       style="color:#1d4ed8;font-size:12px;line-height:1.4;"
+                                       onmouseover="this.style.color='#1e40af'" onmouseout="this.style.color='#1d4ed8'">
+                                        ${q.title}
+                                    </a>
+                                </li>
+                            `).join('');
+                            similarDiv.classList.add('visible');
+                        } else {
+                            similarDiv.classList.remove('visible');
+                        }
+                    })
+                    .catch(() => similarDiv.classList.remove('visible'));
+            } else {
+                similarDiv.classList.remove('visible');
+            }
+        }, 500);
+    });
+
+    // Limit tag selection to 5
+    document.querySelectorAll('.tag-check').forEach(cb => {
+        cb.addEventListener('change', function() {
+            const checked = document.querySelectorAll('.tag-check:checked');
+            if (checked.length > 5) {
+                this.checked = false;
+            }
         });
-    </script>
+    });
+</script>
 </x-app-layout>

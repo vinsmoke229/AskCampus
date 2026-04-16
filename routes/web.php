@@ -13,12 +13,32 @@ Route::get('/', function () {
 
 // Dashboard (nécessite authentification)
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $data = [];
+    if (auth()->user()->isModerator()) {
+        $data = [
+            'modStats' => [
+                'totalQuestions' => \App\Models\Question::count(),
+                'openQuestions'  => \App\Models\Question::where('is_solved', false)->where('is_closed', false)->count(),
+                'closedQuestions'=> \App\Models\Question::where('is_closed', true)->count(),
+                'totalAnswers'   => \App\Models\Answer::count(),
+                'totalUsers'     => \App\Models\User::count(),
+                'totalTags'      => \App\Models\Tag::count(),
+            ],
+            'recentQuestions' => \App\Models\Question::with(['user', 'tags', 'answers'])->latest()->take(15)->get(),
+            'recentAnswers'   => \App\Models\Answer::with(['user', 'question'])->latest()->take(10)->get(),
+            'recentUsers'     => \App\Models\User::latest()->take(8)->get(),
+        ];
+    }
+    return view('dashboard', $data);
 })->middleware(['auth', 'verified'])->name('dashboard');
+
 
 // Routes publiques (lecture seule)
 Route::get('/questions', [QuestionController::class, 'index'])->name('questions.index');
-Route::get('/questions/{question}', [QuestionController::class, 'show'])->name('questions.show');
+
+// Profils publics et liste des utilisateurs
+Route::get('/users', [App\Http\Controllers\UserController::class, 'index'])->name('users.index');
+Route::get('/users/{user}', [App\Http\Controllers\UserController::class, 'show'])->name('users.show');
 
 // Routes protégées (nécessitent authentification)
 Route::middleware('auth')->group(function () {
@@ -27,7 +47,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Questions (création uniquement)
+    // Questions (création uniquement) - DOIT être AVANT questions.show
     Route::get('/questions/create', [QuestionController::class, 'create'])->name('questions.create');
     Route::post('/questions', [QuestionController::class, 'store'])->name('questions.store');
     
@@ -42,6 +62,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/vote', [VoteController::class, 'vote'])->name('vote');
 });
 
+// Route publique pour voir une question - DOIT être APRÈS /questions/create
+Route::get('/questions/{question}', [QuestionController::class, 'show'])->name('questions.show');
+
 // Routes modérateur
 Route::middleware(['auth', 'moderator'])->group(function () {
     // Modération des questions
@@ -51,6 +74,9 @@ Route::middleware(['auth', 'moderator'])->group(function () {
     
     // Modération des réponses
     Route::delete('/answers/{answer}', [AnswerController::class, 'destroy'])->name('answers.destroy');
+
+    // Gestion des tags
+    Route::resource('tags', App\Http\Controllers\TagController::class)->except(['create', 'show']);
 });
 
 require __DIR__.'/auth.php';
