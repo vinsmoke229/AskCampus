@@ -20,22 +20,28 @@
     .post { display: flex; gap: 16px; padding: 16px 0; border-bottom: 1px solid #e3e6e8; }
     .post:last-child { border-bottom: none; }
     
-    /* Vote Column */
-    .vote-cell { width: 48px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    /* Vote Column - Nu et aligné en haut */
+    .vote-cell { 
+        width: 48px; flex-shrink: 0; 
+        display: flex; flex-direction: column; align-items: center; gap: 8px;
+        padding-top: 4px; /* Alignement avec le texte */
+    }
     .vote-btn { 
-        width: 36px; height: 36px; border: 1px solid #d6d9dc; background: #fff;
+        width: 36px; height: 36px; border: none; background: transparent;
         display: flex; align-items: center; justify-content: center; cursor: pointer;
         color: #babfc4; transition: all 0.1s; border-radius: 50%;
+        padding: 0;
     }
-    .vote-btn:hover { background: #f8f9f9; border-color: #9fa6ad; }
-    .vote-btn.voted { background: #f48225; border-color: #f48225; color: #fff; }
+    .vote-btn:hover { background: #f8f9f9; color: #6a737c; }
+    .vote-btn.voted { background: #f48225; color: #fff; }
     .vote-score { font-size: 21px; font-weight: 400; color: #6a737c; line-height: 1; }
     .vote-check { 
-        width: 36px; height: 36px; border: 1px solid #5eba7d; background: #fff;
+        width: 36px; height: 36px; border: none; background: transparent;
         display: flex; align-items: center; justify-content: center; cursor: pointer;
         color: #5eba7d; transition: all 0.1s; border-radius: 50%;
+        padding: 0;
     }
-    .vote-check:hover { background: #5eba7d; color: #fff; }
+    .vote-check:hover { background: #f0fdf4; }
     .vote-check.accepted { background: #5eba7d; color: #fff; }
     
     /* Content Column */

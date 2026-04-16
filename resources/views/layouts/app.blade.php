@@ -200,7 +200,7 @@
     <div class="header-inner">
 
         <!-- Logo -->
-        <a href="{{ route('questions.index') }}" class="site-logo">
+        <a href="{{ auth()->check() ? route('dashboard') : route('questions.index') }}" class="site-logo">
             <span class="logo-icon">
                 <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
                     <path d="M15 3L3 10l12 7 12-7-12-7z" fill="#5046e5"/>
@@ -263,7 +263,7 @@
                                 background:#fff;border:1px solid #e5e7eb;border-radius:10px;
                                 box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:200;overflow:hidden;">
                         <div style="padding:6px 0;">
-                            <a href="{{ route('dashboard') }}"
+                            <a href="{{ route('profile.show') }}"
                                style="display:flex;align-items:center;gap:8px;padding:9px 16px;
                                       font-size:13px;color:#1f2937;"
                                onmouseover="this.style.background='#f5f5fd'" onmouseout="this.style.background='transparent'">
@@ -316,14 +316,25 @@
     <!-- Left Sidebar -->
     <aside id="sidebar-left">
         <nav>
-            <a href="{{ route('questions.index') }}"
-               class="nav-item {{ request()->routeIs('questions.index') && !request()->has('tag') ? 'active' : '' }}">
-                <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                </svg>
-                Accueil
-            </a>
+            @auth
+                <a href="{{ route('dashboard') }}"
+                   class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                    <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    Accueil
+                </a>
+            @else
+                <a href="{{ route('questions.index') }}"
+                   class="nav-item {{ request()->routeIs('questions.index') && !request()->has('tag') ? 'active' : '' }}">
+                    <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    Accueil
+                </a>
+            @endauth
             <a href="{{ route('questions.index') }}"
                class="nav-item {{ request()->routeIs('questions.*') ? 'active' : '' }}">
                 <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -332,8 +343,7 @@
                 </svg>
                 Questions
             </a>
-            <a href="#"
-               class="nav-item {{ request()->has('tag') ? 'active' : '' }}">
+            <a href="{{ route('tags.index') }}" class="nav-item {{ request()->routeIs('tags.index') ? 'active' : '' }}">
                 <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round"
                           d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/>
@@ -351,8 +361,8 @@
             @auth
                 <div class="nav-divider" style="margin-top:10px;"></div>
                 <div class="nav-section-title">Personnel</div>
-                <a href="{{ route('dashboard') }}"
-                   class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                <a href="{{ route('profile.show') }}"
+                   class="nav-item {{ request()->routeIs('profile.show') ? 'active' : '' }}">
                     <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round"
                               d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>

@@ -6,35 +6,25 @@ use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\VoteController;
 use Illuminate\Support\Facades\Route;
 
-// Page d'accueil redirige vers les questions
+// Page d'accueil : dashboard si connecté, sinon questions
 Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
     return redirect()->route('questions.index');
 });
 
-// Dashboard (nécessite authentification)
+// Dashboard (nécessite authentification) - Page d'accueil personnalisée
 Route::get('/dashboard', function () {
-    $data = [];
-    if (auth()->user()->isModerator()) {
-        $data = [
-            'modStats' => [
-                'totalQuestions' => \App\Models\Question::count(),
-                'openQuestions'  => \App\Models\Question::where('is_solved', false)->where('is_closed', false)->count(),
-                'closedQuestions'=> \App\Models\Question::where('is_closed', true)->count(),
-                'totalAnswers'   => \App\Models\Answer::count(),
-                'totalUsers'     => \App\Models\User::count(),
-                'totalTags'      => \App\Models\Tag::count(),
-            ],
-            'recentQuestions' => \App\Models\Question::with(['user', 'tags', 'answers'])->latest()->take(15)->get(),
-            'recentAnswers'   => \App\Models\Answer::with(['user', 'question'])->latest()->take(10)->get(),
-            'recentUsers'     => \App\Models\User::latest()->take(8)->get(),
-        ];
-    }
-    return view('dashboard', $data);
+    return view('home');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 
 // Routes publiques (lecture seule)
 Route::get('/questions', [QuestionController::class, 'index'])->name('questions.index');
+
+// Tags (page publique)
+Route::get('/tags', [App\Http\Controllers\TagController::class, 'index'])->name('tags.index');
 
 // Profils publics et liste des utilisateurs
 Route::get('/users', [App\Http\Controllers\UserController::class, 'index'])->name('users.index');
@@ -46,6 +36,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    // Page de profil publique (vue Stack Overflow)
+    Route::get('/mon-profil', function () {
+        return view('profile.show');
+    })->name('profile.show');
 
     // Questions (création uniquement) - DOIT être AVANT questions.show
     Route::get('/questions/create', [QuestionController::class, 'create'])->name('questions.create');
@@ -75,8 +70,8 @@ Route::middleware(['auth', 'moderator'])->group(function () {
     // Modération des réponses
     Route::delete('/answers/{answer}', [AnswerController::class, 'destroy'])->name('answers.destroy');
 
-    // Gestion des tags
-    Route::resource('tags', App\Http\Controllers\TagController::class)->except(['create', 'show']);
+    // Gestion des tags (modérateur uniquement - création, édition, suppression)
+    Route::resource('tags', App\Http\Controllers\TagController::class)->except(['create', 'show', 'index']);
 });
 
 require __DIR__.'/auth.php';

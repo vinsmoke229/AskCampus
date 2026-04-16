@@ -6,6 +6,7 @@ use App\Http\Requests\VoteRequest;
 use App\Models\Answer;
 use App\Models\Question;
 use App\Models\Vote;
+use Illuminate\Support\Facades\Gate;
 
 class VoteController extends Controller
 {
@@ -35,9 +36,9 @@ class VoteController extends Controller
 
         // Vérifier les autorisations via Policy
         if ($votableType === Question::class) {
-            $this->authorize('voteOnQuestion', $votable);
+            Gate::authorize('voteOnQuestion', $votable);
         } else {
-            $this->authorize('voteOnAnswer', $votable);
+            Gate::authorize('voteOnAnswer', $votable);
         }
 
         // Chercher si un vote existe déjà

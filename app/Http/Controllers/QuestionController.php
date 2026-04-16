@@ -92,8 +92,10 @@ class QuestionController extends Controller
      */
     public function show(Question $question)
     {
-        // Incrémenter le compteur de vues
-        $question->increment('views');
+        // Incrémenter le compteur de vues (sauf si c'est l'auteur)
+        if (!auth()->check() || auth()->id() !== $question->user_id) {
+            $question->increment('views');
+        }
 
         // Charger les relations nécessaires
         $question->load([

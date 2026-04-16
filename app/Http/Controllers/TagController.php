@@ -10,8 +10,8 @@ class TagController extends Controller
 {
     public function index()
     {
-        $tags = Tag::withCount('questions')->orderByDesc('questions_count')->paginate(20);
-        return view('tags.index', compact('tags'));
+        // La vue gère la pagination et le tri manuellement
+        return view('tags.index');
     }
 
     public function store(Request $request)
