@@ -218,4 +218,22 @@ class QuestionController extends Controller
         return redirect()->route('questions.index')
             ->with('success', 'Question supprimée avec succès.');
     }
+
+    /**
+     * Suivre/Ne plus suivre une question
+     */
+    public function toggleFollow(Question $question)
+    {
+        $user = auth()->user();
+
+        if ($user->followedQuestions()->where('question_id', $question->id)->exists()) {
+            // Ne plus suivre
+            $user->followedQuestions()->detach($question->id);
+            return back()->with('success', 'Vous ne suivez plus cette question.');
+        } else {
+            // Suivre
+            $user->followedQuestions()->attach($question->id);
+            return back()->with('success', 'Vous suivez maintenant cette question.');
+        }
+    }
 }

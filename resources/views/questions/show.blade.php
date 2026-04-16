@@ -242,8 +242,33 @@
                     {{-- Footer --}}
                     <div class="post-footer">
                         <div class="post-actions">
-                            <button class="post-action-btn">Partager</button>
-                            <button class="post-action-btn">Suivre</button>
+                            {{-- Bouton Partager --}}
+                            <button class="post-action-btn" onclick="shareQuestion({{ $question->id }}, '{{ addslashes($question->title) }}')">
+                                <svg style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                                </svg>
+                                Partager
+                            </button>
+                            
+                            {{-- Bouton Suivre --}}
+                            @auth
+                                <form method="POST" action="{{ route('questions.follow', $question) }}" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="post-action-btn" style="{{ $question->isFollowedByUser() ? 'color:#0074cc;font-weight:600;' : '' }}">
+                                        <svg style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:3px;" fill="{{ $question->isFollowedByUser() ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                                        </svg>
+                                        {{ $question->isFollowedByUser() ? 'Suivi' : 'Suivre' }}
+                                    </button>
+                                </form>
+                            @else
+                                <button class="post-action-btn" onclick="window.location='{{ route('login') }}'">
+                                    <svg style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                                    </svg>
+                                    Suivre
+                                </button>
+                            @endauth
                             
                             @auth
                                 {{-- Boutons Edit et Delete pour le propriétaire --}}
@@ -334,7 +359,7 @@
                             : null;
                     @endphp
                     
-                    <div class="post">
+                    <div class="post" id="answer-{{ $answer->id }}">
                         
                         {{-- Vote Column --}}
                         <div class="vote-cell">
@@ -417,7 +442,12 @@
                             {{-- Footer --}}
                             <div class="post-footer">
                                 <div class="post-actions">
-                                    <button class="post-action-btn">Partager</button>
+                                    <button class="post-action-btn" onclick="shareAnswer({{ $answer->id }}, {{ $question->id }})">
+                                        <svg style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                                        </svg>
+                                        Partager
+                                    </button>
                                     
                                     @auth
                                         @if(auth()->user()->isModerator())
@@ -548,5 +578,128 @@
     </div>
     
 </div>
+
+{{-- Script pour le partage --}}
+<script>
+    // Fonction de partage de question
+    function shareQuestion(questionId, questionTitle) {
+        const url = window.location.href;
+        
+        // Vérifier si l'API Web Share est disponible (mobile)
+        if (navigator.share) {
+            navigator.share({
+                title: questionTitle,
+                text: 'Découvrez cette question sur AskCampus',
+                url: url
+            }).catch(err => console.log('Erreur de partage:', err));
+        } else {
+            // Fallback : copier le lien dans le presse-papier
+            copyToClipboard(url);
+        }
+    }
+    
+    // Fonction de partage de réponse
+    function shareAnswer(answerId, questionId) {
+        const url = window.location.href + '#answer-' + answerId;
+        
+        if (navigator.share) {
+            navigator.share({
+                title: 'Réponse sur AskCampus',
+                text: 'Découvrez cette réponse',
+                url: url
+            }).catch(err => console.log('Erreur de partage:', err));
+        } else {
+            copyToClipboard(url);
+        }
+    }
+    
+    // Copier dans le presse-papier
+    function copyToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('Lien copié dans le presse-papier !');
+            }).catch(err => {
+                fallbackCopyToClipboard(text);
+            });
+        } else {
+            fallbackCopyToClipboard(text);
+        }
+    }
+    
+    // Fallback pour les anciens navigateurs
+    function fallbackCopyToClipboard(text) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+            document.execCommand('copy');
+            showNotification('Lien copié dans le presse-papier !');
+        } catch (err) {
+            showNotification('Impossible de copier le lien', 'error');
+        }
+        
+        document.body.removeChild(textArea);
+    }
+    
+    // Afficher une notification
+    function showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            background: ${type === 'success' ? '#5eba7d' : '#d93025'};
+            color: #fff;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            animation: slideIn 0.3s ease-out;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease-out';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+    
+    // Animations CSS
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
 
 </x-app-layout>

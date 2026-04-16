@@ -188,14 +188,36 @@
     
     {{-- Welcome Section --}}
     <div class="welcome-section">
-        <h1 class="welcome-title">Hey {{ $user->name }}, what do you want to learn today?</h1>
-        <p class="welcome-subtitle">Obtenez des réponses instantanées avec AI Assist, basées sur les connaissances vérifiées de la communauté.</p>
-        <input type="text" class="welcome-input" placeholder="Commencez une discussion avec AI Assist...">
-        <p class="welcome-note">
-            En utilisant AI Assist, vous acceptez les 
-            <a href="#" style="color:#0074cc;">Conditions d'utilisation</a> et la 
-            <a href="#" style="color:#0074cc;">Politique de confidentialité</a> de AskCampus.
-        </p>
+        <h1 class="welcome-title">Hey {{ $user->name }}, que voulez-vous apprendre aujourd'hui ?</h1>
+        <p class="welcome-subtitle">Posez vos questions, partagez vos connaissances et aidez la communauté à grandir.</p>
+        
+        {{-- Quick Actions --}}
+        <div style="display:flex;gap:12px;margin-top:16px;">
+            <a href="{{ route('questions.create') }}" 
+               style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;background:#0a95ff;color:#fff;border-radius:3px;text-decoration:none;font-size:13px;font-weight:600;">
+                <svg style="width:16px;height:16px;" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/>
+                    <path d="M8 3.5a.5.5 0 01.5.5v3.5H12a.5.5 0 010 1H8.5V12a.5.5 0 01-1 0V8.5H4a.5.5 0 010-1h3.5V4a.5.5 0 01.5-.5z"/>
+                </svg>
+                Poser une question
+            </a>
+            
+            <a href="{{ route('questions.index') }}" 
+               style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;background:#fff;color:#6a737c;border:1px solid #babfc4;border-radius:3px;text-decoration:none;font-size:13px;font-weight:600;">
+                <svg style="width:16px;height:16px;" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M11.742 10.344a6.5 6.5 0 10-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 001.415-1.414l-3.85-3.85a1.007 1.007 0 00-.115-.1zM12 6.5a5.5 5.5 0 11-11 0 5.5 5.5 0 0111 0z"/>
+                </svg>
+                Parcourir les questions
+            </a>
+            
+            <a href="{{ route('tags.index') }}" 
+               style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;background:#fff;color:#6a737c;border:1px solid #babfc4;border-radius:3px;text-decoration:none;font-size:13px;font-weight:600;">
+                <svg style="width:16px;height:16px;" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M2 2a1 1 0 011-1h4.586a1 1 0 01.707.293l7 7a1 1 0 010 1.414l-4.586 4.586a1 1 0 01-1.414 0l-7-7A1 1 0 012 6.586V2zm3.5 4a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
+                </svg>
+                Explorer les tags
+            </a>
+        </div>
     </div>
     
     <div class="home-grid">
@@ -333,22 +355,46 @@
         {{-- Sidebar --}}
         <aside>
             
-            {{-- Blog Widget --}}
+            {{-- Quick Help Widget --}}
             <div class="sidebar-widget">
-                <div class="sidebar-widget-title">📝 Le Blog AskCampus</div>
+                <div class="sidebar-widget-title">💡 AIDE RAPIDE</div>
                 <ul class="sidebar-list">
-                    <li><a href="#">Comment bien poser une question</a></li>
-                    <li><a href="#">Système de réputation expliqué</a></li>
-                    <li><a href="#">Guide du modérateur</a></li>
+                    <li>
+                        <a href="{{ route('questions.create') }}">
+                            <strong>Comment bien poser une question</strong>
+                        </a>
+                        <div style="font-size:11px;color:#6a737c;margin-top:2px;">
+                            Titre clair, contexte complet, code pertinent
+                        </div>
+                    </li>
+                    <li>
+                        <a href="{{ route('profile.show') }}">
+                            <strong>Système de réputation expliqué</strong>
+                        </a>
+                        <div style="font-size:11px;color:#6a737c;margin-top:2px;">
+                            +10 vote positif, +20 réponse acceptée
+                        </div>
+                    </li>
+                    <li>
+                        <a href="{{ route('tags.index') }}">
+                            <strong>Guide des tags</strong>
+                        </a>
+                        <div style="font-size:11px;color:#6a737c;margin-top:2px;">
+                            Catégorisez vos questions efficacement
+                        </div>
+                    </li>
                 </ul>
             </div>
             
-            {{-- Featured Widget --}}
+            {{-- Community Guidelines --}}
             <div class="sidebar-widget" style="background:#e1ecf4;border-color:#c8dae9;">
-                <div class="sidebar-widget-title">⭐ Mis en avant sur Meta</div>
-                <ul class="sidebar-list">
-                    <li><a href="#">Retirer le site bêta</a></li>
-                    <li><a href="#">Politique : IA générative (ChatGPT) est interdite</a></li>
+                <div class="sidebar-widget-title">📋 RÈGLES DE LA COMMUNAUTÉ</div>
+                <ul class="sidebar-list" style="margin:0;padding-left:18px;">
+                    <li style="padding:4px 0;">Soyez respectueux et courtois</li>
+                    <li style="padding:4px 0;">Votez pour les bonnes réponses</li>
+                    <li style="padding:4px 0;">Acceptez la meilleure réponse</li>
+                    <li style="padding:4px 0;">Évitez les doublons</li>
+                    <li style="padding:4px 0;">Pas de spam ou auto-promotion</li>
                 </ul>
             </div>
             

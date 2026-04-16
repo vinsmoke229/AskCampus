@@ -7,6 +7,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -62,5 +63,14 @@ class User extends Authenticatable
     public function isModerator(): bool
     {
         return $this->is_moderator;
+    }
+
+    /**
+     * Relation : Questions suivies par l'utilisateur
+     */
+    public function followedQuestions(): BelongsToMany
+    {
+        return $this->belongsToMany(Question::class, 'question_user_follow')
+            ->withTimestamps();
     }
 }

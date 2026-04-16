@@ -33,5 +33,9 @@ class AppServiceProvider extends ServiceProvider
         // Enregistrer les Gates pour les votes
         Gate::define('voteOnQuestion', [VotePolicy::class, 'voteOnQuestion']);
         Gate::define('voteOnAnswer', [VotePolicy::class, 'voteOnAnswer']);
+        
+        // Enregistrer les Policies
+        Gate::policy(Question::class, \App\Policies\QuestionPolicy::class);
+        Gate::policy(Answer::class, \App\Policies\AnswerPolicy::class);
     }
 }

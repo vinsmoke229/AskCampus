@@ -80,4 +80,25 @@ class Question extends Model
         $vote = $this->votes()->where('user_id', auth()->id())->first();
         return $vote ? $vote->value : null;
     }
+
+    /**
+     * Relation : Utilisateurs qui suivent cette question
+     */
+    public function followers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'question_user_follow')
+            ->withTimestamps();
+    }
+
+    /**
+     * Vérifie si l'utilisateur connecté suit cette question
+     */
+    public function isFollowedByUser(): bool
+    {
+        if (!auth()->check()) {
+            return false;
+        }
+
+        return $this->followers()->where('user_id', auth()->id())->exists();
+    }
 }

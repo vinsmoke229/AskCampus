@@ -69,6 +69,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/questions/{question}/edit', [QuestionController::class, 'edit'])->name('questions.edit');
     Route::patch('/questions/{question}', [QuestionController::class, 'update'])->name('questions.update');
     
+    // Suivre/Ne plus suivre une question
+    Route::post('/questions/{question}/follow', [QuestionController::class, 'toggleFollow'])->name('questions.follow');
+    
     // API pour recherche de questions similaires (anti-doublon)
     Route::get('/api/questions/similar', [QuestionController::class, 'searchSimilar'])->name('questions.similar');
 
