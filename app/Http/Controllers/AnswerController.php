@@ -53,4 +53,16 @@ class AnswerController extends Controller
         return redirect()->route('questions.show', $question)
             ->with('success', 'Réponse acceptée avec succès.');
     }
+
+    /**
+     * Supprime une réponse (modérateur uniquement)
+     */
+    public function destroy(Answer $answer)
+    {
+        $question = $answer->question;
+        $answer->delete();
+
+        return redirect()->route('questions.show', $question)
+            ->with('success', 'Réponse supprimée avec succès.');
+    }
 }

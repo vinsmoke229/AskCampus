@@ -105,4 +105,65 @@ class QuestionController extends Controller
 
         return view('questions.show', compact('question'));
     }
+
+    /**
+     * Recherche de questions similaires (API pour anti-doublon)
+     */
+    public function searchSimilar(Request $request)
+    {
+        $title = $request->input('title', '');
+        
+        if (strlen($title) < 10) {
+            return response()->json([]);
+        }
+
+        // Rechercher des questions similaires par titre
+        $similarQuestions = Question::where('title', 'like', "%{$title}%")
+            ->with('tags')
+            ->limit(5)
+            ->get(['id', 'title', 'is_solved'])
+            ->map(function ($question) {
+                return [
+                    'id' => $question->id,
+                    'title' => $question->title,
+                    'is_solved' => $question->is_solved,
+                    'url' => route('questions.show', $question),
+                ];
+            });
+
+        return response()->json($similarQuestions);
+    }
+
+    /**
+     * Ferme une question (modérateur uniquement)
+     */
+    public function close(Question $question)
+    {
+        $question->update(['is_closed' => true]);
+
+        return redirect()->route('questions.show', $question)
+            ->with('success', 'Question fermée avec succès.');
+    }
+
+    /**
+     * Rouvre une question (modérateur uniquement)
+     */
+    public function reopen(Question $question)
+    {
+        $question->update(['is_closed' => false]);
+
+        return redirect()->route('questions.show', $question)
+            ->with('success', 'Question rouverte avec succès.');
+    }
+
+    /**
+     * Supprime une question (modérateur uniquement)
+     */
+    public function destroy(Question $question)
+    {
+        $question->delete();
+
+        return redirect()->route('questions.index')
+            ->with('success', 'Question supprimée avec succès.');
+    }
 }

@@ -31,6 +31,24 @@
                             </p>
                         </div>
 
+                        <!-- Similar Questions Alert (Anti-doublon) -->
+                        <div id="similar-questions" class="hidden mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <div class="flex items-start">
+                                <svg class="w-5 h-5 text-yellow-600 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                </svg>
+                                <div class="flex-1">
+                                    <h3 class="text-sm font-semibold text-yellow-800 mb-2">
+                                        Questions similaires trouvées
+                                    </h3>
+                                    <p class="text-sm text-yellow-700 mb-3">
+                                        Avant de poster, vérifiez si votre question n'a pas déjà été posée :
+                                    </p>
+                                    <ul id="similar-questions-list" class="space-y-2"></ul>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Body -->
                         <div class="mb-6">
                             <label for="body" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -159,4 +177,44 @@
             </div>
         </div>
     </div>
+
+    <!-- Script pour la détection de doublons -->
+    <script>
+        const titleInput = document.getElementById('title');
+        const similarQuestionsDiv = document.getElementById('similar-questions');
+        const similarQuestionsList = document.getElementById('similar-questions-list');
+        let searchTimeout;
+
+        // Recherche de questions similaires lors de la saisie du titre
+        titleInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const title = this.value;
+
+            // Attendre que l'utilisateur arrête de taper
+            searchTimeout = setTimeout(() => {
+                if (title.length >= 10) {
+                    fetch(`{{ route('questions.similar') }}?title=${encodeURIComponent(title)}`)
+                        .then(response => response.json())
+                        .then(questions => {
+                            if (questions.length > 0) {
+                                // Afficher les questions similaires
+                                similarQuestionsList.innerHTML = questions.map(q => `
+                                    <li class="text-sm">
+                                        <a href="${q.url}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center">
+                                            ${q.is_solved ? '<svg class="w-4 h-4 text-green-600 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>' : ''}
+                                            ${q.title}
+                                        </a>
+                                    </li>
+                                `).join('');
+                                similarQuestionsDiv.classList.remove('hidden');
+                            } else {
+                                similarQuestionsDiv.classList.add('hidden');
+                            }
+                        });
+                } else {
+                    similarQuestionsDiv.classList.add('hidden');
+                }
+            }, 500); // Attendre 500ms après la dernière frappe
+        });
+    </script>
 </x-app-layout>

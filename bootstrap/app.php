@@ -11,7 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Enregistrer le middleware moderator
+        $middleware->alias([
+            'moderator' => \App\Http\Middleware\IsModerator::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

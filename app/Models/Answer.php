@@ -23,7 +23,7 @@ class Answer extends Model
     ];
 
     /**
-     * Get the question that owns the answer.
+     * Relation : Question parente
      */
     public function question(): BelongsTo
     {
@@ -31,7 +31,7 @@ class Answer extends Model
     }
 
     /**
-     * Get the user that owns the answer.
+     * Relation : Utilisateur propriétaire
      */
     public function user(): BelongsTo
     {
@@ -39,10 +39,31 @@ class Answer extends Model
     }
 
     /**
-     * Get all of the answer's votes.
+     * Relation : Votes polymorphes
      */
     public function votes(): MorphMany
     {
         return $this->morphMany(Vote::class, 'votable');
+    }
+
+    /**
+     * Calcule le score total des votes (somme des +1 et -1)
+     */
+    public function getVoteScoreAttribute(): int
+    {
+        return $this->votes->sum('value');
+    }
+
+    /**
+     * Vérifie si l'utilisateur connecté a voté sur cette réponse
+     */
+    public function userVote(): ?int
+    {
+        if (!auth()->check()) {
+            return null;
+        }
+
+        $vote = $this->votes()->where('user_id', auth()->id())->first();
+        return $vote ? $vote->value : null;
     }
 }

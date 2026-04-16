@@ -5,53 +5,66 @@
             <div class="p-8">
                 <!-- Question Header -->
                 <div class="mb-6">
-                    <h1 class="text-3xl font-bold text-gray-900 mb-3">{{ $question->title }}</h1>
-                    <div class="flex items-center space-x-4 text-sm text-gray-600">
-                        <span>Posée {{ $question->created_at->diffForHumans() }}</span>
-                        <span>•</span>
-                        <span>{{ $question->views }} vues</span>
-                        @if($question->is_solved)
-                            <span class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
-                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                </svg>
-                                Résolu
-                            </span>
-                        @endif
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h1 class="text-3xl font-bold text-gray-900 mb-3">{{ $question->title }}</h1>
+                            <div class="flex items-center space-x-4 text-sm text-gray-600">
+                                <span>Posée {{ $question->created_at->diffForHumans() }}</span>
+                                <span>•</span>
+                                <span>{{ $question->views }} vues</span>
+                                @if($question->is_solved)
+                                    <span class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Résolu
+                                    </span>
+                                @endif
+                                @if($question->is_closed)
+                                    <span class="inline-flex items-center px-3 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full">
+                                        🔒 Fermée
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Boutons de modération -->
+                        @auth
+                            @if(auth()->user()->isModerator())
+                                <div class="flex items-center space-x-2">
+                                    @if($question->is_closed)
+                                        <form action="{{ route('questions.reopen', $question) }}" method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition">
+                                                Rouvrir
+                                            </button>
+                                        </form>
+                                    @else
+                                        <form action="{{ route('questions.close', $question) }}" method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="px-3 py-1 bg-yellow-600 text-white text-sm rounded hover:bg-yellow-700 transition">
+                                                Fermer
+                                            </button>
+                                        </form>
+                                    @endif
+                                    <form action="{{ route('questions.destroy', $question) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette question ?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition">
+                                            Supprimer
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
+                        @endauth
                     </div>
                 </div>
 
                 <div class="flex gap-6">
                     <!-- Vote Buttons -->
-                    <div class="flex flex-col items-center space-y-2">
-                        <form action="{{ route('vote') }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="votable_type" value="App\Models\Question">
-                            <input type="hidden" name="votable_id" value="{{ $question->id }}">
-                            <input type="hidden" name="value" value="1">
-                            <button type="submit" class="p-2 rounded-lg hover:bg-gray-100 transition">
-                                <svg class="w-8 h-8 text-gray-600 hover:text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
-                                </svg>
-                            </button>
-                        </form>
-
-                        <div class="text-2xl font-bold text-gray-700">
-                            {{ $question->votes->sum('value') }}
-                        </div>
-
-                        <form action="{{ route('vote') }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="votable_type" value="App\Models\Question">
-                            <input type="hidden" name="votable_id" value="{{ $question->id }}">
-                            <input type="hidden" name="value" value="-1">
-                            <button type="submit" class="p-2 rounded-lg hover:bg-gray-100 transition">
-                                <svg class="w-8 h-8 text-gray-600 hover:text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                </svg>
-                            </button>
-                        </form>
-                    </div>
+                    <x-vote-buttons :votable="$question" type="App\Models\Question" />
 
                     <!-- Question Content -->
                     <div class="flex-1">
@@ -101,55 +114,7 @@
                         <div class="p-6">
                             <div class="flex gap-6">
                                 <!-- Vote Buttons -->
-                                <div class="flex flex-col items-center space-y-2">
-                                    <form action="{{ route('vote') }}" method="POST">
-                                        @csrf
-                                        <input type="hidden" name="votable_type" value="App\Models\Answer">
-                                        <input type="hidden" name="votable_id" value="{{ $answer->id }}">
-                                        <input type="hidden" name="value" value="1">
-                                        <button type="submit" class="p-2 rounded-lg hover:bg-gray-100 transition">
-                                            <svg class="w-8 h-8 text-gray-600 hover:text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
-                                            </svg>
-                                        </button>
-                                    </form>
-
-                                    <div class="text-2xl font-bold text-gray-700">
-                                        {{ $answer->votes->sum('value') }}
-                                    </div>
-
-                                    <form action="{{ route('vote') }}" method="POST">
-                                        @csrf
-                                        <input type="hidden" name="votable_type" value="App\Models\Answer">
-                                        <input type="hidden" name="votable_id" value="{{ $answer->id }}">
-                                        <input type="hidden" name="value" value="-1">
-                                        <button type="submit" class="p-2 rounded-lg hover:bg-gray-100 transition">
-                                            <svg class="w-8 h-8 text-gray-600 hover:text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                            </svg>
-                                        </button>
-                                    </form>
-
-                                    @if($question->user_id === auth()->id() && !$answer->is_accepted)
-                                        <form action="{{ route('answers.accept', $answer) }}" method="POST" class="mt-2">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit" class="p-2 rounded-lg hover:bg-green-100 transition" title="Accepter cette réponse">
-                                                <svg class="w-8 h-8 text-gray-400 hover:text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                            </button>
-                                        </form>
-                                    @endif
-
-                                    @if($answer->is_accepted)
-                                        <div class="mt-2 p-2 bg-green-500 rounded-lg">
-                                            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                            </svg>
-                                        </div>
-                                    @endif
-                                </div>
+                                <x-vote-buttons :votable="$answer" type="App\Models\Answer" :question="$question" />
 
                                 <!-- Answer Content -->
                                 <div class="flex-1">
@@ -167,7 +132,20 @@
                                     </div>
 
                                     <!-- Author Info -->
-                                    <div class="flex justify-end">
+                                    <div class="flex justify-between items-end">
+                                        <div>
+                                            @auth
+                                                @if(auth()->user()->isModerator())
+                                                    <form action="{{ route('answers.destroy', $answer) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette réponse ?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition">
+                                                            Supprimer
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            @endauth
+                                        </div>
                                         <div class="bg-gray-50 rounded-lg p-4 w-64">
                                             <div class="text-xs text-gray-600 mb-2">Répondu {{ $answer->created_at->diffForHumans() }}</div>
                                             <div class="flex items-center space-x-3">

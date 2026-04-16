@@ -2,14 +2,12 @@
 
 namespace App\Observers;
 
-use App\Models\Answer;
-use App\Models\Question;
 use App\Models\Vote;
 
 class VoteObserver
 {
     /**
-     * Handle the Vote "created" event.
+     * Événement déclenché lors de la création d'un vote
      */
     public function created(Vote $vote): void
     {
@@ -17,7 +15,7 @@ class VoteObserver
     }
 
     /**
-     * Handle the Vote "updated" event.
+     * Événement déclenché lors de la mise à jour d'un vote
      */
     public function updated(Vote $vote): void
     {
@@ -33,7 +31,7 @@ class VoteObserver
     }
 
     /**
-     * Handle the Vote "deleted" event.
+     * Événement déclenché lors de la suppression d'un vote
      */
     public function deleted(Vote $vote): void
     {
@@ -41,7 +39,7 @@ class VoteObserver
     }
 
     /**
-     * Update user reputation based on vote.
+     * Met à jour la réputation de l'auteur du contenu voté
      */
     private function updateReputation(Vote $vote, string $action, ?int $value = null): void
     {
@@ -61,8 +59,10 @@ class VoteObserver
             return;
         }
 
-        // Calculer le changement de réputation (+10 pour upvote, -10 pour downvote)
-        $reputationChange = $value * 10;
+        // Calculer le changement de réputation
+        // Vote positif : +10 points
+        // Vote négatif : -2 points
+        $reputationChange = $value > 0 ? 10 : -2;
 
         // Appliquer ou retirer la réputation
         if ($action === 'add') {

@@ -28,11 +28,12 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_moderator' => 'boolean',
         ];
     }
 
     /**
-     * Get the questions for the user.
+     * Relation : Questions de l'utilisateur
      */
     public function questions(): HasMany
     {
@@ -40,7 +41,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the answers for the user.
+     * Relation : Réponses de l'utilisateur
      */
     public function answers(): HasMany
     {
@@ -48,10 +49,18 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the votes for the user.
+     * Relation : Votes de l'utilisateur
      */
     public function votes(): HasMany
     {
         return $this->hasMany(Vote::class);
+    }
+
+    /**
+     * Vérifie si l'utilisateur est modérateur
+     */
+    public function isModerator(): bool
+    {
+        return $this->is_moderator;
     }
 }

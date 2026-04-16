@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Modérateur',
             'email' => 'mod@askcampus.com',
             'reputation' => 1000,
+            'is_moderator' => true,
         ]);
 
         $users = User::factory(9)->create();
