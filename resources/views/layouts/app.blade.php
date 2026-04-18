@@ -229,6 +229,30 @@
         <!-- Auth -->
         <div class="header-actions">
             @auth
+                {{-- Icône notifications --}}
+                <a href="{{ route('notifications.index') }}"
+                   style="position:relative;display:flex;align-items:center;justify-content:center;
+                          width:36px;height:36px;border-radius:8px;border:1.5px solid #e5e7eb;
+                          color:#6b7280;transition:border-color .15s;"
+                   onmouseover="this.style.borderColor='#5046e5';this.style.color='#5046e5'"
+                   onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#6b7280'">
+                    <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                    @php $unreadCount = auth()->user()->unreadNotifications()->count(); @endphp
+                    @if($unreadCount > 0)
+                        <span style="position:absolute;top:-4px;right:-4px;
+                                     min-width:16px;height:16px;padding:0 4px;
+                                     background:#d93025;color:#fff;border-radius:8px;
+                                     font-size:10px;font-weight:700;
+                                     display:flex;align-items:center;justify-content:center;
+                                     border:2px solid #fff;">
+                            {{ $unreadCount > 99 ? '99+' : $unreadCount }}
+                        </span>
+                    @endif
+                </a>
+
                 <div style="position:relative;" x-data="{ open: false }">
                     <button @click="open = !open" type="button"
                             style="display:flex;align-items:center;gap:7px;padding:6px 10px;
@@ -350,7 +374,7 @@
                 </svg>
                 Tags
             </a>
-            <a href="#" class="nav-item">
+            <a href="{{ route('users.index') }}" class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
                 <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round"
                           d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>

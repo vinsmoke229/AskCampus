@@ -6,6 +6,7 @@ use App\Http\Requests\VoteRequest;
 use App\Models\Answer;
 use App\Models\Question;
 use App\Models\Vote;
+use App\Notifications\VoteReceived;
 use Illuminate\Support\Facades\Gate;
 
 class VoteController extends Controller
@@ -73,6 +74,15 @@ class VoteController extends Controller
             ]);
             $rep = $value === 1 ? self::REP['upvote'] : self::REP['downvote'];
             $contentOwner?->increment('reputation', $rep);
+
+            // Notifier le propriétaire du contenu (sauf si c'est lui-même qui vote)
+            if ($contentOwner && $contentOwner->id !== $userId) {
+                $typeLabel   = $votableType === Question::class ? 'question' : 'réponse';
+                $title       = $votable instanceof Question ? $votable->title : $votable->question->title;
+                $questionId  = $votable instanceof Question ? $votable->id : $votable->question_id;
+                $contentOwner->notify(new VoteReceived($typeLabel, $votableId, $title, $value, $questionId));
+            }
+
             $message = 'Vote enregistré.';
         }
 

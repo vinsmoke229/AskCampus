@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreAnswerRequest;
 use App\Models\Answer;
 use App\Models\Question;
+use App\Notifications\AnswerAccepted;
+use App\Notifications\NewAnswerOnFollowedQuestion;
 
 class AnswerController extends Controller
 {
@@ -24,6 +26,14 @@ class AnswerController extends Controller
             'user_id' => auth()->id(),
             'body' => $request->body,
         ]);
+
+        // Notifier les utilisateurs qui suivent la question (sauf l'auteur de la réponse)
+        $followers = $question->followers()
+            ->where('users.id', '!=', auth()->id())
+            ->get();
+        foreach ($followers as $follower) {
+            $follower->notify(new NewAnswerOnFollowedQuestion($answer));
+        }
 
         return redirect()->route('questions.show', $question)
             ->with('success', 'Réponse ajoutée avec succès.');
@@ -57,6 +67,11 @@ class AnswerController extends Controller
         // Attribuer la réputation (+15 pour l'auteur de la réponse, +2 pour l'auteur de la question)
         $answer->user?->increment('reputation', 15);
         $question->user?->increment('reputation', 2);
+
+        // Notifier l'auteur de la réponse
+        if ($answer->user && $answer->user->id !== auth()->id()) {
+            $answer->user->notify(new AnswerAccepted($answer));
+        }
 
         // Marquer la question comme résolue
         $question->update(['is_solved' => true]);
