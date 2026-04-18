@@ -28,9 +28,35 @@ class UserController extends Controller
     /**
      * Affiche la liste des utilisateurs (public)
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::orderByDesc('reputation')->paginate(30);
-        return view('users.index', compact('users'));
+        $query  = $request->input('q', '');
+        $sort   = $request->input('sort', 'reputation');
+        $filter = $request->input('filter', 'all');
+
+        $users = User::withCount(['questions', 'answers']);
+
+        // Recherche par nom
+        if ($query !== '') {
+            $users->where('name', 'like', "%{$query}%");
+        }
+
+        // Filtres
+        if ($filter === 'moderators') {
+            $users->where('is_moderator', true);
+        } elseif ($filter === 'new') {
+            $users->where('created_at', '>=', now()->subDays(7));
+        }
+
+        // Tri
+        match ($sort) {
+            'name'       => $users->orderBy('name'),
+            'newest'     => $users->latest(),
+            default      => $users->orderByDesc('reputation'),
+        };
+
+        $users = $users->paginate(30)->withQueryString();
+
+        return view('users.index', compact('users', 'query', 'sort', 'filter'));
     }
 }
