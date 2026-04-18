@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\AnswerController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\VoteController;
 use Illuminate\Support\Facades\Route;
 
@@ -38,6 +40,12 @@ Route::get('/dashboard', function () {
     return view('home');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+
+// Recherche globale
+Route::get('/search', [SearchController::class, 'index'])->name('search');
+Route::get('/search/questions', [SearchController::class, 'questions'])->name('search.questions');
+Route::get('/search/users', [SearchController::class, 'users'])->name('search.users');
+Route::get('/search/tags', [SearchController::class, 'tags'])->name('search.tags');
 
 // Routes publiques (lecture seule)
 Route::get('/questions', [QuestionController::class, 'index'])->name('questions.index');
