@@ -6,7 +6,7 @@
 
 <style>
     /* Container */
-    .tags-container { max-width: 1264px; margin: 0 auto; }
+    .tags-container { width: 100%; }
     
     /* Header */
     .tags-header { margin-bottom: 16px; }
@@ -50,15 +50,11 @@
     /* Tags Grid */
     .tags-grid { 
         display: grid; 
-        grid-template-columns: repeat(4, 1fr); 
+        grid-template-columns: repeat(3, 1fr); 
         gap: 12px;
     }
     
-    @media (max-width: 1024px) {
-        .tags-grid { grid-template-columns: repeat(3, 1fr); }
-    }
-    
-    @media (max-width: 768px) {
+    @media (max-width: 900px) {
         .tags-grid { grid-template-columns: repeat(2, 1fr); }
     }
     
@@ -69,7 +65,9 @@
     /* Tag Card */
     .tag-card { 
         background: #fff; border: 1px solid #e3e6e8; border-radius: 3px;
-        padding: 12px; transition: box-shadow 0.1s;
+        padding: 12px;
+        display: flex; flex-direction: column;
+        transition: box-shadow 0.1s;
     }
     .tag-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
     
@@ -77,22 +75,25 @@
         display: inline-block; padding: 4px 6px; font-size: 12px;
         background: #e1ecf4; color: #39739d; border-radius: 3px;
         text-decoration: none; margin-bottom: 8px; font-weight: 400;
+        align-self: flex-start;
     }
     .tag-name:hover { background: #d0e3f1; }
     
     .tag-description { 
         font-size: 13px; color: #3b4045; line-height: 1.5;
-        margin-bottom: 12px; display: -webkit-box;
+        margin-bottom: 12px; flex: 1;
+        display: -webkit-box;
         -webkit-line-clamp: 3; -webkit-box-orient: vertical;
         overflow: hidden;
     }
     
     .tag-stats { 
-        display: flex; justify-content: space-between; align-items: center;
+        display: flex; flex-direction: column; gap: 2px;
         font-size: 12px; color: #6a737c;
+        border-top: 1px solid #f0f0f0; padding-top: 8px; margin-top: auto;
     }
     .tag-questions { font-weight: 700; color: #232629; }
-    .tag-activity { }
+    .tag-activity { color: #6a737c; }
     
     /* Pagination */
     .tags-pagination { 

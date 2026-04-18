@@ -34,7 +34,7 @@
             box-shadow: 0 1px 6px rgba(80,70,229,.12);
         }
         .header-inner {
-            width: 100%; max-width: 1264px; margin: 0 auto;
+            width: 100%; margin: 0;
             padding: 0 12px;
             display: flex; align-items: center; gap: 6px;
         }
@@ -53,7 +53,7 @@
         }
 
         /* Search */
-        .header-search { flex: 1; max-width: 600px; }
+        .header-search { flex: 1; max-width: 600px; margin: 0 auto; }
         .search-wrap { position: relative; }
         .search-wrap input {
             display: block; width: 100%;
@@ -95,7 +95,7 @@
 
         /* ── Page Layout ─────────────────── */
         #page-wrap {
-            max-width: 1264px; margin: 0 auto;
+            width: 100%; margin: 0;
             display: flex; min-height: calc(100vh - 52px);
         }
 

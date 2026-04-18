@@ -11,14 +11,6 @@ use Illuminate\Support\Facades\Gate;
 class VoteController extends Controller
 {
     /**
-     * Règles de réputation par action
-     */
-    private const REP = [
-        'upvote'   => 10,   // reçoit un vote positif
-        'downvote' => -2,   // reçoit un vote négatif
-    ];
-
-    /**
      * Gère le vote sur une question ou une réponse (polymorphe)
      */
     public function vote(VoteRequest $request)
@@ -26,13 +18,10 @@ class VoteController extends Controller
         $userId      = auth()->id();
         $votableType = $request->votable_type;
         $votableId   = $request->votable_id;
-        $value       = (int) $request->value;   // +1 ou -1
+        $value       = (int) $request->value;
 
         // Récupérer l'entité votable (Question ou Answer)
         $votable = $votableType::findOrFail($votableId);
-
-        // Propriétaire du contenu (celui qui reçoit/perd de la réputation)
-        $contentOwner = $votable->user;
 
         // Vérifier les autorisations via Policy
         if ($votableType === Question::class) {
@@ -51,16 +40,10 @@ class VoteController extends Controller
             if ($existingVote->value == $value) {
                 // Même vote → on retire (toggle)
                 $existingVote->delete();
-                // Annuler la réputation accordée
-                $rep = $value === 1 ? -self::REP['upvote'] : -self::REP['downvote'];
-                $contentOwner?->increment('reputation', $rep);
                 $message = 'Vote retiré.';
             } else {
                 // Vote opposé → on remplace
-                $oldRep = $existingVote->value === 1 ? -self::REP['upvote'] : -self::REP['downvote'];
-                $newRep = $value === 1 ?  self::REP['upvote'] :  self::REP['downvote'];
                 $existingVote->update(['value' => $value]);
-                $contentOwner?->increment('reputation', $oldRep + $newRep);
                 $message = 'Vote mis à jour.';
             }
         } else {
@@ -71,8 +54,6 @@ class VoteController extends Controller
                 'votable_id'   => $votableId,
                 'value'        => $value,
             ]);
-            $rep = $value === 1 ? self::REP['upvote'] : self::REP['downvote'];
-            $contentOwner?->increment('reputation', $rep);
             $message = 'Vote enregistré.';
         }
 
