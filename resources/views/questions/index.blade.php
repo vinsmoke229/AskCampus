@@ -18,63 +18,138 @@
     </a>
 </div>
 
-{{-- ══════════ FILTER BAR ══════════ --}}
-<div style="display:flex;align-items:center;justify-content:space-between;
-            padding-bottom:14px;border-bottom:2px solid #f3f4f6;margin-bottom:0;">
+<div x-data="{ showFilters: false }" style="margin-bottom: 20px;">
+    {{-- ══════════ FILTER BAR ══════════ --}}
+    <div style="display:flex;align-items:center;justify-content:space-between;
+                padding-bottom:14px;border-bottom:2px solid #f3f4f6;">
 
-    <span style="font-size:13px;color:#9ca3af;font-weight:500;">
-        {{ number_format($questions->total()) }} question{{ $questions->total() > 1 ? 's' : '' }}
-    </span>
+        <span style="font-size:13px;color:#9ca3af;font-weight:500;">
+            {{ number_format($questions->total()) }} question{{ $questions->total() > 1 ? 's' : '' }}
+        </span>
 
-    <div style="display:flex;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
 
-        {{-- Grouped sort tabs --}}
-        @php
-            if (!request('filter') && !request('sort'))       $tab = 'recent';
-            elseif (request('sort') === 'active')             $tab = 'active';
-            elseif (request('filter') === 'unsolved')         $tab = 'unsolved';
-            elseif (request('filter') === 'solved')           $tab = 'solved';
-            else                                              $tab = 'recent';
-        @endphp
-
-        <div style="display:flex;border:1.5px solid #e5e7eb;border-radius:10px;overflow:hidden;font-size:13px;">
+            {{-- Grouped sort tabs --}}
             @php
-                $tabs = [
-                    'recent'  => ['label'=>'Récentes',     'url'=> route('questions.index')],
-                    'active'  => ['label'=>'Actives',      'url'=> route('questions.index', ['sort'=>'active'])],
-                    'unsolved'=> ['label'=>'Sans réponse', 'url'=> route('questions.index', ['filter'=>'unsolved'])],
-                    'solved'  => ['label'=>'Résolues',     'url'=> route('questions.index', ['filter'=>'solved'])],
-                ];
+                if (!request('filter') && !request('sort'))       $tab = 'recent';
+                elseif (request('sort') === 'active')             $tab = 'active';
+                elseif (request('filter') === 'unsolved')         $tab = 'unsolved';
+                elseif (request('filter') === 'solved')           $tab = 'solved';
+                else                                              $tab = 'recent';
             @endphp
-            @foreach($tabs as $key => $t)
-                @php $active = ($tab === $key); @endphp
-                <a href="{{ $t['url'] }}"
-                   style="display:block;padding:8px 14px;text-decoration:none;
-                          {{ !$loop->first ? 'border-left:1.5px solid #e5e7eb;' : '' }}
-                          background:{{ $active ? 'linear-gradient(135deg,#5046e5,#7c3aed)' : '#fff' }};
-                          color:{{ $active ? '#fff' : '#6b7280' }};
-                          font-weight:{{ $active ? '700' : '400' }};
-                          transition:background .12s,color .12s;"
-                   onmouseover="if({{ $active ? 'false' : 'true' }}){ this.style.background='#f5f5fd'; this.style.color='#5046e5'; }"
-                   onmouseout="if({{ $active ? 'false' : 'true' }}){ this.style.background='#fff'; this.style.color='#6b7280'; }">
-                    {{ $t['label'] }}
-                </a>
-            @endforeach
-        </div>
 
-        {{-- Filter button --}}
-        <button style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;
-                       font-size:13px;font-weight:500;color:#6b7280;
-                       border:1.5px solid #e5e7eb;border-radius:10px;background:#fff;
-                       cursor:pointer;transition:all .12s;"
-                onmouseover="this.style.borderColor='#5046e5';this.style.color='#5046e5';this.style.background='#f5f5fd';"
-                onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#6b7280';this.style.background='#fff';">
-            <svg style="width:13px;height:13px;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
-            </svg>
-            Filtrer
-        </button>
+            <div style="display:flex;border:1.5px solid #e5e7eb;border-radius:10px;overflow:hidden;font-size:13px;">
+                @php
+                    $tabs = [
+                        'recent'  => ['label'=>'Récentes',     'url'=> route('questions.index')],
+                        'active'  => ['label'=>'Actives',      'url'=> route('questions.index', ['sort'=>'active'])],
+                        'unsolved'=> ['label'=>'Sans réponse', 'url'=> route('questions.index', ['filter'=>'unsolved'])],
+                        'solved'  => ['label'=>'Résolues',     'url'=> route('questions.index', ['filter'=>'solved'])],
+                    ];
+                @endphp
+                @foreach($tabs as $key => $t)
+                    @php $active = ($tab === $key); @endphp
+                    <a href="{{ $t['url'] }}"
+                       style="display:block;padding:8px 14px;text-decoration:none;
+                              {{ !$loop->first ? 'border-left:1.5px solid #e5e7eb;' : '' }}
+                              background:{{ $active ? 'linear-gradient(135deg,#5046e5,#7c3aed)' : '#fff' }};
+                              color:{{ $active ? '#fff' : '#6b7280' }};
+                              font-weight:{{ $active ? '700' : '400' }};
+                              transition:background .12s,color .12s;"
+                       onmouseover="if({{ $active ? 'false' : 'true' }}){ this.style.background='#f5f5fd'; this.style.color='#5046e5'; }"
+                       onmouseout="if({{ $active ? 'false' : 'true' }}){ this.style.background='#fff'; this.style.color='#6b7280'; }">
+                        {{ $t['label'] }}
+                    </a>
+                @endforeach
+            </div>
+
+            {{-- Filter button --}}
+            <button @click="showFilters = !showFilters"
+                    :style="showFilters ? 'background:#eef2ff; border-color:#a5b4fc; color:#5046e5;' : 'background:#fff; border-color:#e5e7eb; color:#6b7280;'"
+                    style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;
+                           font-size:13px;font-weight:500;
+                           border:1.5px solid;border-radius:10px;
+                           cursor:pointer;transition:all .12s;"
+                    onmouseover="if(!showFilters){this.style.borderColor='#a5b4fc';this.style.color='#5046e5';this.style.background='#f5f5fd';}"
+                    onmouseout="if(!showFilters){this.style.borderColor='#e5e7eb';this.style.color='#6b7280';this.style.background='#fff';}">
+                <svg style="width:13px;height:13px;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
+                </svg>
+                Filtrer
+            </button>
+        </div>
+    </div>
+
+    {{-- Advanced Filter Dropdown --}}
+    <div x-show="showFilters" style="display:none;" x-transition>
+        <div style="background:#f9fafb; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px; padding: 20px;">
+            <form action="{{ route('questions.index') }}" method="GET" style="margin: 0;">
+                @if(request('search'))
+                    <input type="hidden" name="search" value="{{ request('search') }}">
+                @endif
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 20px;">
+                    
+                    {{-- Filter By --}}
+                    <div>
+                        <h4 style="font-size: 14px; font-weight: 700; color: #374151; margin-bottom: 12px; margin-top: 0;">Filtrer par</h4>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #4b5563; cursor: pointer;">
+                                <input type="radio" name="filter" value="" {{ request('filter') ? '' : 'checked' }} style="accent-color: #5046e5;">
+                                Toutes les questions
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #4b5563; cursor: pointer;">
+                                <input type="radio" name="filter" value="unsolved" {{ request('filter') === 'unsolved' ? 'checked' : '' }} style="accent-color: #5046e5;">
+                                Sans réponse
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #4b5563; cursor: pointer;">
+                                <input type="radio" name="filter" value="solved" {{ request('filter') === 'solved' ? 'checked' : '' }} style="accent-color: #5046e5;">
+                                Résolues
+                            </label>
+                        </div>
+                    </div>
+
+                    {{-- Sort By --}}
+                    <div>
+                        <h4 style="font-size: 14px; font-weight: 700; color: #374151; margin-bottom: 12px; margin-top: 0;">Trier par</h4>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #4b5563; cursor: pointer;">
+                                <input type="radio" name="sort" value="latest" {{ request('sort') !== 'active' ? 'checked' : '' }} style="accent-color: #5046e5;">
+                                Plus récentes
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #4b5563; cursor: pointer;">
+                                <input type="radio" name="sort" value="active" {{ request('sort') === 'active' ? 'checked' : '' }} style="accent-color: #5046e5;">
+                                Récemment actives
+                            </label>
+                        </div>
+                    </div>
+
+                    {{-- Tag --}}
+                    <div>
+                        <h4 style="font-size: 14px; font-weight: 700; color: #374151; margin-bottom: 12px; margin-top: 0;">Tagué avec</h4>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-size: 13px; color: #4b5563; margin-bottom: 2px;">
+                                Le tag suivant :
+                            </label>
+                            <input type="text" name="tag" value="{{ request('tag') }}" placeholder="Ex: laravel, php, javascript" 
+                                   style="padding: 8px 12px; font-size: 13px; border: 1px solid #d1d5db; border-radius: 6px; outline: none; width: 100%; max-width: 250px;">
+                        </div>
+                    </div>
+
+                </div>
+
+                {{-- Action Buttons --}}
+                <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+                    <button type="submit" style="padding: 8px 16px; background: linear-gradient(135deg, #5046e5, #7c3aed); color: #fff; font-size: 13px; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; box-shadow: 0 2px 4px rgba(80,70,229,.2);">
+                        Appliquer le filtre
+                    </button>
+                    <button type="button" @click="showFilters = false" style="padding: 8px 16px; background: transparent; color: #6b7280; font-size: 13px; font-weight: 500; border: none; cursor: pointer;">
+                        Annuler
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -84,7 +159,9 @@
         @php
             $answerCount = $question->answers->count();
             $palette     = ['#5046e5','#7c3aed','#059669','#dc2626','#d97706','#0891b2','#c026d3','#0284c7'];
-            $avatarBg    = $palette[abs(crc32($question->user->name ?? '')) % count($palette)];
+            $isAnonAdmin = ($question->user->name ?? '') === 'admin';
+            $displayName = $isAnonAdmin ? 'Anonyme' : ($question->user->name ?? 'Utilisateur inconnu');
+            $avatarBg    = $palette[abs(crc32($displayName)) % count($palette)];
             $views       = $question->views;
             $viewsStr    = $views >= 1000000
                             ? number_format($views/1000000,1).'M vues'
@@ -185,16 +262,16 @@
                         <div style="width:18px;height:18px;border-radius:4px;background:{{ $avatarBg }};
                                     display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                             <span style="color:#fff;font-weight:800;font-size:9px;line-height:1;">
-                                {{ strtoupper(substr($question->user->name ?? '?', 0, 1)) }}
+                                {{ strtoupper(substr($displayName, 0, 1)) }}
                             </span>
                         </div>
                         {{-- Name --}}
                         <a href="#" style="color:#5046e5;text-decoration:none;font-weight:600;"
                            onmouseover="this.style.color='#4338ca'" onmouseout="this.style.color='#5046e5'">
-                            {{ $question->user->name }}
+                            {{ $displayName }}
                         </a>
                         {{-- Reputation --}}
-                        @if(($question->user->reputation ?? 0) > 0)
+                        @if(!$isAnonAdmin && ($question->user->reputation ?? 0) > 0)
                             <span style="color:#7c3aed;font-weight:700;">
                                 {{ number_format($question->user->reputation) }}
                             </span>

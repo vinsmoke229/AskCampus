@@ -66,6 +66,7 @@
     .tag-card {
         background: #fff; border: 1px solid #e3e6e8; border-radius: 3px;
         padding: 12px; transition: box-shadow .1s;
+        display: flex; flex-direction: column; height: 100%;
     }
     .tag-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.1); }
     .tag-card[style*="display:none"] { display: none !important; }
@@ -75,25 +76,6 @@
     .tag-name {
         display: inline-block; padding: 4px 6px; font-size: 12px;
         background: #e1ecf4; color: #39739d; border-radius: 3px;
-<<<<<<< HEAD
-        text-decoration: none; margin-bottom: 8px; font-weight: 400;
-        align-self: flex-start;
-    }
-    .tag-name:hover { background: #d0e3f1; }
-    
-    .tag-description { 
-        font-size: 13px; color: #3b4045; line-height: 1.5;
-        margin-bottom: 12px; flex: 1;
-        display: -webkit-box;
-        -webkit-line-clamp: 3; -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-    
-    .tag-stats { 
-        display: flex; flex-direction: column; gap: 2px;
-        font-size: 12px; color: #6a737c;
-        border-top: 1px solid #f0f0f0; padding-top: 8px; margin-top: auto;
-=======
         text-decoration: none; font-weight: 400;
     }
     .tag-name:hover { background: #d0e3f1; }
@@ -101,14 +83,14 @@
     .tag-description {
         font-size: 13px; color: #3b4045; line-height: 1.5; margin-bottom: 10px;
         display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+        flex-grow: 1;
     }
 
     /* Barre de popularité */
-    .tag-popularity { margin-bottom: 10px; }
+    .tag-popularity { margin-bottom: 10px; margin-top: auto; }
     .popularity-label { font-size: 11px; color: #9fa6ad; margin-bottom: 3px; }
     .popularity-bar-bg {
         height: 4px; background: #e3e6e8; border-radius: 2px; overflow: hidden;
->>>>>>> TCHABODJO
     }
     .popularity-bar-fill {
         height: 100%; background: #f48225; border-radius: 2px;
@@ -118,13 +100,8 @@
     /* Stats */
     .tag-stats { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #6a737c; }
     .tag-questions { font-weight: 700; color: #232629; }
-<<<<<<< HEAD
-    .tag-activity { color: #6a737c; }
-    
-=======
     .tag-week { color: #5eba7d; font-weight: 600; }
 
->>>>>>> TCHABODJO
     /* Pagination */
     .tags-pagination { display: flex; justify-content: center; gap: 4px; margin-top: 24px; }
     .pagination-btn {
@@ -180,7 +157,7 @@
     $offset      = ($currentPage - 1) * $perPage;
     $tags        = $allTags->slice($offset, $perPage)->values();
 
-    // Icônes par catégorie (basé sur le nom du tag)
+    // Icônes par catégorie (basé sur le nom du tag ou catégorie)
     function getTagIcon(string $name): string {
         $name = strtolower($name);
         $map = [
@@ -203,7 +180,7 @@
         return '🏷️';
     }
 
-    // Catégories pour le filtre
+    // Catégories pour le filtre (basé sur la base de données)
     $categories = [
         'all'      => 'Tous',
         'frontend' => 'Frontend',
@@ -211,13 +188,7 @@
         'database' => 'Base de données',
         'mobile'   => 'Mobile',
         'devops'   => 'DevOps',
-    ];
-    $categoryKeywords = [
-        'frontend' => ['html','css','javascript','js','vue','react','angular','typescript','sass','bootstrap','tailwind','ui','ux','design'],
-        'backend'  => ['php','laravel','python','java','node','ruby','go','rust','c++','c#','swift','kotlin','api','rest','graphql'],
-        'database' => ['sql','mysql','postgresql','mongodb','redis','database','orm','eloquent'],
-        'mobile'   => ['android','ios','mobile','flutter','react-native','swift','kotlin'],
-        'devops'   => ['docker','linux','git','devops','cloud','aws','ci','cd','nginx','apache'],
+        'general'  => 'Général',
     ];
     $activeCategory = request('category', 'all');
 @endphp
@@ -278,37 +249,19 @@
                     $recentQuestions = $tag->questions()
                         ->where('created_at', '>=', now()->subWeek())
                         ->count();
-
                     $activityText = $recentQuestions > 0
                         ? $recentQuestions . ' cette semaine'
                         : 'Aucune cette semaine';
-
                     $popularityPct = $maxQuestions > 0
                         ? round(($tag->questions_count / $maxQuestions) * 100)
                         : 0;
-
                     $tagIcon = getTagIcon($tag->name);
-
-                    // Déterminer la catégorie du tag pour le filtre JS
-                    $tagCats = ['all'];
-                    foreach ($categoryKeywords as $cat => $keywords) {
-                        foreach ($keywords as $kw) {
-                            if (str_contains(strtolower($tag->name), $kw)) {
-                                $tagCats[] = $cat;
-                                break;
-                            }
-                        }
-                    }
-                    $tagCatsJson = json_encode($tagCats);
-
-                    // Masquer si catégorie active ne correspond pas
-                    $hidden = ($activeCategory !== 'all' && !in_array($activeCategory, $tagCats));
                 @endphp
 
                 <div class="tag-card"
                      data-name="{{ strtolower($tag->name) }}"
-                     data-categories="{{ $tagCatsJson }}"
-                     @if($hidden) style="display:none;" @endif>
+                     data-category="{{ $tag->category ?? 'general' }}"
+                     @if($activeCategory !== 'all' && ($tag->category ?? 'general') !== $activeCategory) style="display:none;" @endif>
 
                     <div class="tag-card-header">
                         <span class="tag-icon">{{ $tagIcon }}</span>

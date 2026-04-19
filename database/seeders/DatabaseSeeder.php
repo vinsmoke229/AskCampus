@@ -27,13 +27,45 @@ class DatabaseSeeder extends Seeder
         $users = User::factory(9)->create();
         $allUsers = $users->push($moderator);
 
-        // Création des tags
+        // Création des tags adaptés à la vie étudiante
         $tags = collect([
+            // Matières académiques
+            ['name' => 'Mathématiques', 'slug' => 'mathematiques', 'description' => 'Algèbre, analyse, géométrie, statistiques'],
+            ['name' => 'Économie', 'slug' => 'economie', 'description' => 'Microéconomie, macroéconomie, économétrie'],
+            ['name' => 'Droit', 'slug' => 'droit', 'description' => 'Droit civil, pénal, administratif, constitutionnel'],
+            ['name' => 'Physique', 'slug' => 'physique', 'description' => 'Mécanique, thermodynamique, électromagnétisme'],
+            ['name' => 'Chimie', 'slug' => 'chimie', 'description' => 'Chimie organique, inorganique, analytique'],
+            ['name' => 'Biologie', 'slug' => 'biologie', 'description' => 'Biologie cellulaire, génétique, écologie'],
+            ['name' => 'Histoire', 'slug' => 'histoire', 'description' => 'Histoire moderne, contemporaine, médiévale'],
+            ['name' => 'Philosophie', 'slug' => 'philosophie', 'description' => 'Métaphysique, éthique, logique'],
+            ['name' => 'Littérature', 'slug' => 'litterature', 'description' => 'Analyse littéraire, poésie, roman'],
+            ['name' => 'Langues', 'slug' => 'langues', 'description' => 'Anglais, espagnol, allemand, chinois'],
+            
+            // Informatique et technologies
+            ['name' => 'Informatique', 'slug' => 'informatique', 'description' => 'Programmation, algorithmes, bases de données'],
             ['name' => 'Laravel', 'slug' => 'laravel', 'description' => 'Framework PHP moderne pour le développement web'],
             ['name' => 'PHP', 'slug' => 'php', 'description' => 'Langage de programmation côté serveur'],
             ['name' => 'JavaScript', 'slug' => 'javascript', 'description' => 'Langage de programmation pour le web'],
-            ['name' => 'Économie', 'slug' => 'economie', 'description' => 'Questions sur la microéconomie et macroéconomie'],
+            ['name' => 'Python', 'slug' => 'python', 'description' => 'Langage polyvalent pour data science et web'],
+            ['name' => 'Java', 'slug' => 'java', 'description' => 'Langage orienté objet pour applications'],
+            ['name' => 'C++', 'slug' => 'cpp', 'description' => 'Langage système et programmation bas niveau'],
+            ['name' => 'SQL', 'slug' => 'sql', 'description' => 'Langage de requêtes pour bases de données'],
             ['name' => 'Algorithmique', 'slug' => 'algorithmique', 'description' => 'Structures de données et algorithmes'],
+            
+            // Gestion et commerce
+            ['name' => 'Comptabilité', 'slug' => 'comptabilite', 'description' => 'Comptabilité générale, analytique, financière'],
+            ['name' => 'Finance', 'slug' => 'finance', 'description' => 'Finance d\'entreprise, marchés financiers'],
+            ['name' => 'Marketing', 'slug' => 'marketing', 'description' => 'Marketing digital, stratégique, opérationnel'],
+            ['name' => 'Management', 'slug' => 'management', 'description' => 'Gestion d\'équipe, stratégie d\'entreprise'],
+            ['name' => 'Ressources-Humaines', 'slug' => 'ressources-humaines', 'description' => 'GRH, recrutement, formation'],
+            
+            // Vie étudiante
+            ['name' => 'Vie-étudiante', 'slug' => 'vie-etudiante', 'description' => 'Bourses, logement, vie associative'],
+            ['name' => 'Orientation', 'slug' => 'orientation', 'description' => 'Choix de filière, parcours, débouchés'],
+            ['name' => 'Stage', 'slug' => 'stage', 'description' => 'Recherche de stage, rapport, convention'],
+            ['name' => 'Mémoire', 'slug' => 'memoire', 'description' => 'Rédaction, méthodologie, soutenance'],
+            ['name' => 'Examens', 'slug' => 'examens', 'description' => 'Préparation, révisions, conseils'],
+            ['name' => 'Méthodologie', 'slug' => 'methodologie', 'description' => 'Méthodes de travail, organisation, efficacité'],
         ])->map(fn($tag) => Tag::create($tag));
 
         // Création des questions avec tags

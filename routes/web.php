@@ -64,9 +64,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
-    // Page de profil publique (vue Stack Overflow)
-    Route::get('/mon-profil', function () {
-        return view('profile.show');
+    // Page de profil publique (vue Stack Overflow unifiée)
+    Route::get('/mon-profil', function (\App\Http\Controllers\UserController $controller) {
+        return $controller->show(auth()->user());
     })->name('profile.show');
 
     // Notifications

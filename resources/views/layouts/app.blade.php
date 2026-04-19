@@ -455,6 +455,7 @@
                 </div>
 
                 <!-- Stats -->
+                @if(auth()->check() && auth()->user()->isModerator())
                 <div class="widget">
                     <div class="widget-head">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -484,6 +485,7 @@
                         </dl>
                     </div>
                 </div>
+                @endif
 
                 <!-- Tags -->
                 <div class="widget">

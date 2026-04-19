@@ -19,6 +19,14 @@
     /* Post Layout (Question & Answer) */
     .post { display: flex; gap: 16px; padding: 16px 0; border-bottom: 1px solid #e3e6e8; }
     .post:last-child { border-bottom: none; }
+    .answer-accepted { 
+        background: #f0fdf4; 
+        border-left: 4px solid #5eba7d; 
+        padding-left: 12px;
+        margin-left: -16px;
+        padding-right: 16px;
+        margin-right: -16px;
+    }
     
     /* Vote Column - Nu et aligné en haut */
     .vote-cell { 
@@ -314,17 +322,21 @@
                         {{-- User Card --}}
                         @php
                             $colors = ['#0074cc','#5eba7d','#f48225','#d93025','#8b5cf6','#0891b2'];
-                            $colorIndex = abs(crc32($question->user->name ?? '')) % count($colors);
+                            $isAnonAdminQ = ($question->user->name ?? '') === 'admin';
+                            $displayQName = $isAnonAdminQ ? 'Anonyme' : ($question->user->name ?? 'Utilisateur inconnu');
+                            $colorIndex = abs(crc32($displayQName)) % count($colors);
                         @endphp
                         <div class="user-card owner">
                             <div class="user-card-time">posée {{ $question->created_at->diffForHumans() }}</div>
                             <div class="user-card-info">
                                 <div class="user-avatar" style="background:{{ $colors[$colorIndex] }};">
-                                    {{ strtoupper(substr($question->user->name ?? '?', 0, 1)) }}
+                                    {{ strtoupper(substr($displayQName, 0, 1)) }}
                                 </div>
                                 <div class="user-details">
-                                    <a href="#" class="user-name">{{ $question->user->name }}</a>
-                                    <div class="user-rep">{{ number_format($question->user->reputation ?? 0) }}</div>
+                                    <a href="#" class="user-name">{{ $displayQName }}</a>
+                                    @if(!$isAnonAdminQ)
+                                        <div class="user-rep">{{ number_format($question->user->reputation ?? 0) }}</div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -352,14 +364,16 @@
                 
                 @foreach($sortedAnswers as $answer)
                     @php
-                        $answerColorIndex = abs(crc32($answer->user->name ?? '')) % count($colors);
+                        $isAnonAdminA = ($answer->user->name ?? '') === 'admin';
+                        $displayAName = $isAnonAdminA ? 'Anonyme' : ($answer->user->name ?? 'Utilisateur inconnu');
+                        $answerColorIndex = abs(crc32($displayAName)) % count($colors);
                         $voteScore = $answer->votes->sum('value');
                         $userVote = auth()->check() 
                             ? optional($answer->votes()->where('user_id', auth()->id())->first())->value 
                             : null;
                     @endphp
                     
-                    <div class="post" id="answer-{{ $answer->id }}">
+                    <div class="post {{ $answer->is_accepted ? 'answer-accepted' : '' }}" id="answer-{{ $answer->id }}">
                         
                         {{-- Vote Column --}}
                         <div class="vote-cell">
@@ -465,11 +479,13 @@
                                     <div class="user-card-time">répondu {{ $answer->created_at->diffForHumans() }}</div>
                                     <div class="user-card-info">
                                         <div class="user-avatar" style="background:{{ $colors[$answerColorIndex] }};">
-                                            {{ strtoupper(substr($answer->user->name ?? '?', 0, 1)) }}
+                                            {{ strtoupper(substr($displayAName, 0, 1)) }}
                                         </div>
                                         <div class="user-details">
-                                            <a href="#" class="user-name">{{ $answer->user->name }}</a>
-                                            <div class="user-rep">{{ number_format($answer->user->reputation ?? 0) }}</div>
+                                            <a href="#" class="user-name">{{ $displayAName }}</a>
+                                            @if(!$isAnonAdminA)
+                                                <div class="user-rep">{{ number_format($answer->user->reputation ?? 0) }}</div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>

@@ -19,6 +19,7 @@ class TagController extends Controller
         $validated = $request->validate([
             'name'        => 'required|string|max:50|unique:tags',
             'description' => 'nullable|string|max:255',
+            'category'    => 'nullable|string|max:50',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
@@ -38,6 +39,7 @@ class TagController extends Controller
         $validated = $request->validate([
             'name'        => 'required|string|max:50|unique:tags,name,' . $tag->id,
             'description' => 'nullable|string|max:255',
+            'category'    => 'nullable|string|max:50',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);

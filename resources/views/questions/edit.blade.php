@@ -48,20 +48,37 @@
     .form-textarea { resize:vertical; line-height:1.6; }
     .form-select   { cursor:pointer; }
 
-    /* Tag checkboxes */
-    .tag-grid { display:flex; flex-wrap:wrap; gap:8px; }
-    .tag-check { display:none; }
-    .tag-check + label {
-        display:inline-flex; align-items:center;
-        padding:5px 12px; border-radius:20px;
-        font-size:12px; font-weight:600; color:#5046e5;
-        background:#eef2ff; border:1.5px solid #c7d2fe;
-        cursor:pointer; transition:all .12s;
-        user-select:none;
+    /* Tag badges selection */
+    .tag-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+    .tag-selectable { position: relative; }
+    .tag-selectable input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0; width: 0;
     }
-    .tag-check + label:hover { background:#e0e7ff; }
-    .tag-check:checked + label {
-        background:#5046e5; color:#fff; border-color:#5046e5;
+    .tag-badge {
+        display: inline-flex; align-items: center;
+        padding: 6px 14px; border-radius: 20px;
+        font-size: 13px; font-weight: 600; color: #5046e5;
+        background: #f0f2ff; border: 1.5px solid #c7d2fe;
+        cursor: pointer; transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+        user-select: none;
+    }
+    .tag-badge:hover {
+        background: #e0e7ff;
+        border-color: #5046e5;
+        transform: translateY(-1px);
+    }
+    .tag-selectable input:checked + .tag-badge {
+        background: #5046e5 !important;
+        color: #fff !important;
+        border-color: #5046e5 !important;
+        box-shadow: 0 4px 12px rgba(80, 70, 229, 0.3);
+        transform: translateY(-1px);
+    }
+    .tag-selectable input:focus + .tag-badge {
+        box-shadow: 0 0 0 3px rgba(80, 70, 229, 0.2);
     }
 
     /* Similar questions alert */
@@ -174,11 +191,11 @@
                 <div class="form-step-body">
                     <div class="tag-grid">
                         @foreach(\App\Models\Tag::orderBy('name')->get() as $tag)
-                            <div>
+                            <div class="tag-selectable">
                                 <input type="checkbox" name="tags[]" value="{{ $tag->id }}"
                                        id="tag_{{ $tag->id }}" class="tag-check"
                                        {{ in_array($tag->id, old('tags', $question->tags->pluck('id')->toArray())) ? 'checked' : '' }}>
-                                <label for="tag_{{ $tag->id }}">{{ $tag->name }}</label>
+                                <label for="tag_{{ $tag->id }}" class="tag-badge">{{ $tag->name }}</label>
                             </div>
                         @endforeach
                     </div>

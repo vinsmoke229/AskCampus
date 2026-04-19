@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Éditeur Markdown</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
+        .editor-tabs { display: flex; gap: 0; border-bottom: 1px solid #d6d9dc; margin-bottom: 0; }
+        .editor-tab {
+            padding: 10px 16px; font-size: 13px; font-weight: 600;
+            background: #f8f9fa; color: #6a737c; border: none;
+            border-bottom: 2px solid transparent; cursor: pointer;
+        }
+        .editor-tab.active { background: #fff; color: #0074cc; border-bottom-color: #0074cc; }
+        .toolbar { display: flex; gap: 4px; padding: 8px; background: #f8f9fa; border: 1px solid #d6d9dc; }
+        .toolbar-btn {
+            padding: 6px 12px; background: #fff; border: 1px solid #d6d9dc;
+            border-radius: 3px; cursor: pointer; font-size: 13px;
+        }
+        .toolbar-btn:hover { background: #e3e6e8; }
+        textarea {
+            width: 100%; min-height: 200px; padding: 12px; font-size: 14px;
+            border: 1px solid #d6d9dc; border-top: none; font-family: 'Courier New', monospace;
+        }
+        #preview { padding: 16px; border: 1px solid #d6d9dc; border-top: none; min-height: 200px; background: #fff; }
+        #preview code { background: #f6f6f6; padding: 2px 6px; border-radius: 3px; color: #c7254e; }
+        #preview pre { background: #f6f6f6; padding: 12px; border-radius: 3px; overflow-x: auto; }
+        #preview pre code { background: none; color: #232629; }
+        #preview strong { font-weight: 700; }
+        #preview em { font-style: italic; }
+    </style>
+</head>
+<body>
+    <h1>Test Éditeur Markdown</h1>
+    
+    <div class="editor-tabs">
+        <button class="editor-tab active" onclick="switchTab('write')">Écrire</button>
+        <button class="editor-tab" onclick="switchTab('preview')">Aperçu</button>
+    </div>
+    
+    <div id="write-area">
+        <div class="toolbar">
+            <button class="toolbar-btn" onclick="insertMarkdown('**', '**', 'texte en gras')">B</button>
+            <button class="toolbar-btn" onclick="insertMarkdown('*', '*', 'texte en italique')">I</button>
+            <button class="toolbar-btn" onclick="insertMarkdown('`', '`', 'code')">Code</button>
+            <button class="toolbar-btn" onclick="insertMarkdown('```\n', '\n```', 'votre code ici')">Bloc</button>
+        </div>
+        <textarea id="editor" placeholder="Tapez votre texte en Markdown..."></textarea>
+    </div>
+    
+    <div id="preview-area" style="display:none;">
+        <div id="preview"></div>
+    </div>
+
+    <script>
+        const editor = document.getElementById('editor');
+        const preview = document.getElementById('preview');
+        const writeArea = document.getElementById('write-area');
+        const previewArea = document.getElementById('preview-area');
+        
+        function switchTab(tab) {
+            const tabs = document.querySelectorAll('.editor-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            
+            if (tab === 'write') {
+                tabs[0].classList.add('active');
+                writeArea.style.display = 'block';
+                previewArea.style.display = 'none';
+            } else {
+                tabs[1].classList.add('active');
+                writeArea.style.display = 'none';
+                previewArea.style.display = 'block';
+                updatePreview();
+            }
+        }
+        
+        function insertMarkdown(before, after, placeholder) {
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const selectedText = editor.value.substring(start, end);
+            const text = selectedText || placeholder;
+            const newText = before + text + after;
+            
+            editor.value = editor.value.substring(0, start) + newText + editor.value.substring(end);
+            editor.focus();
+            
+            if (!selectedText) {
+                editor.setSelectionRange(start + before.length, start + before.length + placeholder.length);
+            }
+        }
+        
+        function updatePreview() {
+            let html = editor.value;
+            
+            // Blocs de code
+            html = html.replace(/```([^`]+)```/g, '<pre><code>$1</code></pre>');
+            
+            // Gras
+            html = html.replace(/\*\*([^\*]+)\*\*/g, '<strong>$1</strong>');
+            
+            // Italique
+            html = html.replace(/\*([^\*]+)\*/g, '<em>$1</em>');
+            
+            // Code inline
+            html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+            
+            // Paragraphes
+            html = html.split('\n\n').map(p => '<p>' + p.replace(/\n/g, '<br>') + '</p>').join('');
+            
+            preview.innerHTML = html || '<p style="color:#999;">Rien à prévisualiser...</p>';
+        }
+    </script>
+</body>
+</html>

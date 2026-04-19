@@ -46,23 +46,17 @@
 
     /* Grille utilisateurs */
     .users-grid {
-        display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px;
     }
-    @media (max-width: 1100px) { .users-grid { grid-template-columns: repeat(3, 1fr); } }
-    @media (max-width: 768px)  { .users-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 480px)  { .users-grid { grid-template-columns: 1fr; } }
 
     /* Carte utilisateur */
     .user-card {
-        border: 1px solid #e3e6e8; border-radius: 3px; padding: 14px;
-        display: flex; gap: 12px; align-items: flex-start;
-        transition: box-shadow .1s; text-decoration: none; color: inherit;
-        background: #fff;
+        padding: 6px; display: flex; gap: 8px; align-items: flex-start;
+        text-decoration: none; color: inherit; border-radius: 3px;
     }
-    .user-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.1); }
 
     .user-avatar {
-        width: 48px; height: 48px; border-radius: 3px;
+        width: 48px; height: 48px; border-radius: 4px;
         display: flex; align-items: center; justify-content: center;
         font-weight: 700; font-size: 20px; color: #fff; flex-shrink: 0;
     }
@@ -70,30 +64,24 @@
     .user-info { flex: 1; min-width: 0; }
     .user-name {
         font-size: 13px; color: #0074cc; font-weight: 400;
-        display: block; margin-bottom: 3px; white-space: nowrap;
+        display: block; margin-bottom: 2px; white-space: nowrap;
         overflow: hidden; text-overflow: ellipsis;
     }
     .user-name:hover { color: #0a95ff; }
 
     .user-rep {
-        font-size: 13px; font-weight: 700; color: #232629; margin-bottom: 4px;
+        font-size: 12px; font-weight: 700; color: #6a737c; margin-bottom: 2px;
     }
-    .user-rep-label { font-size: 11px; font-weight: 400; color: #6a737c; }
 
-    .user-badges { display: flex; gap: 4px; margin-bottom: 6px; flex-wrap: wrap; }
+    .user-badges { display: flex; gap: 4px; flex-wrap: wrap; }
     .badge-mod {
-        padding: 1px 5px; font-size: 10px; font-weight: 700;
-        background: #dc2626; color: #fff; border-radius: 3px;
+        padding: 0 4px; font-size: 10px; font-weight: 700;
+        background: #dc2626; color: #fff; border-radius: 2px;
     }
     .badge-new {
-        padding: 1px 5px; font-size: 10px; font-weight: 700;
-        background: #5eba7d; color: #fff; border-radius: 3px;
+        padding: 0 4px; font-size: 10px; font-weight: 700;
+        background: #5eba7d; color: #fff; border-radius: 2px;
     }
-
-    .user-stats { display: flex; gap: 10px; font-size: 11px; color: #6a737c; }
-    .user-stat strong { color: #232629; font-weight: 700; }
-
-    .user-joined { font-size: 11px; color: #9fa6ad; margin-top: 4px; }
 
     /* Empty */
     .users-empty { text-align: center; padding: 64px 24px; color: #6a737c; }
@@ -154,10 +142,6 @@
            class="quick-filter {{ $filter === 'all' ? 'active' : '' }}">
             Tous
         </a>
-        <a href="{{ route('users.index', ['sort' => $sort, 'filter' => 'moderators', 'q' => $query]) }}"
-           class="quick-filter {{ $filter === 'moderators' ? 'active' : '' }}">
-            🛡️ Modérateurs
-        </a>
         <a href="{{ route('users.index', ['sort' => $sort, 'filter' => 'new', 'q' => $query]) }}"
            class="quick-filter {{ $filter === 'new' ? 'active' : '' }}">
             🌱 Nouveaux (7 jours)
@@ -172,43 +156,44 @@
 
     {{-- Grille --}}
     @if($users->count() > 0)
-        <div class="users-grid" id="users-grid">
+        <div class="users-grid" id="users-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px;">
             @foreach($users as $user)
                 @php
                     $ci       = abs(crc32($user->name)) % count($avatarColors);
                     $isNew    = $user->created_at->gte(now()->subDays(7));
                 @endphp
-                <a href="{{ route('users.show', $user) }}" class="user-card">
-                    <div class="user-avatar" style="background:{{ $avatarColors[$ci] }}">
+                <div class="user-card" style="padding: 8px; display: flex; gap: 12px; align-items: flex-start; text-decoration: none; color: inherit; border-radius: 3px;">
+                    <a href="{{ route('users.show', $user) }}" class="user-avatar" style="width: 48px; height: 48px; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; color: #fff; flex-shrink: 0; background:{{ $avatarColors[$ci] }}; text-decoration: none;">
                         {{ strtoupper(substr($user->name, 0, 1)) }}
-                    </div>
-                    <div class="user-info">
-                        <span class="user-name">{{ $user->name }}</span>
-
-                        <div class="user-rep">
+                    </a>
+                    
+                    <div class="user-info" style="flex: 1; min-width: 0;">
+                        <a href="{{ route('users.show', $user) }}" class="user-name" style="font-size: 15px; color: #0074cc; font-weight: 400; display: block; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;">
+                            {{ $user->name }}
+                        </a>
+                        <div style="font-size: 12px; color: #6a737c; margin-bottom: 2px;">{{ $user->campus ?? 'Campus non renseigné' }}</div>
+                        <div class="user-rep" style="font-size: 12px; font-weight: 700; color: #535a60; margin-bottom: 4px;">
                             {{ number_format($user->reputation ?? 0) }}
-                            <span class="user-rep-label">réputation</span>
                         </div>
+                        
+                        @if(isset($user->top_tags) && $user->top_tags->count() > 0)
+                            <div class="user-tags" style="font-size: 12px; color: #0074cc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                @foreach($user->top_tags as $t)
+                                    <a href="{{ route('questions.index', ['tag' => $t->slug]) }}" style="color: #0074cc; text-decoration: none;">{{ $t->name }}</a>@if(!$loop->last), @endif
+                                @endforeach
+                            </div>
+                        @endif
 
-                        <div class="user-badges">
+                        <div class="user-badges" style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px;">
                             @if($user->is_moderator)
-                                <span class="badge-mod">MOD</span>
+                                <span class="badge-mod" style="padding: 1px 4px; font-size: 10px; font-weight: 700; background: #fff; color: #0074cc; border: 1px solid #0074cc; border-radius: 2px;">MODÉRATEUR</span>
                             @endif
                             @if($isNew)
-                                <span class="badge-new">NOUVEAU</span>
+                                <span class="badge-new" style="padding: 1px 4px; font-size: 10px; font-weight: 700; background: #e1ecf4; color: #39739d; border-radius: 2px;">NOUVEAU</span>
                             @endif
                         </div>
-
-                        <div class="user-stats">
-                            <span><strong>{{ $user->questions_count }}</strong> q.</span>
-                            <span><strong>{{ $user->answers_count }}</strong> rép.</span>
-                        </div>
-
-                        <div class="user-joined">
-                            Membre {{ $user->created_at->diffForHumans() }}
-                        </div>
                     </div>
-                </a>
+                </div>
             @endforeach
         </div>
 

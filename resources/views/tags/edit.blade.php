@@ -27,6 +27,19 @@
                           style="width:100%;padding:10px;font-size:13px;border:1.5px solid #e5e7eb;border-radius:8px;">{{ old('description', $tag->description) }}</textarea>
                 @error('description')<span style="color:#dc2626;font-size:12px;margin-top:4px;display:block;">{{ $message }}</span>@enderror
             </div>
+
+            <div style="margin-bottom:20px;">
+                <label for="category" style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;">
+                    Catégorie
+                </label>
+                <select id="category" name="category" 
+                        style="width:100%;padding:10px;font-size:13px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fff;">
+                    @foreach(['frontend' => 'Frontend', 'backend' => 'Backend', 'database' => 'Base de données', 'mobile' => 'Mobile', 'devops' => 'DevOps', 'general' => 'Général'] as $val => $lbl)
+                        <option value="{{ $val }}" {{ old('category', $tag->category) == $val ? 'selected' : '' }}>{{ $lbl }}</option>
+                    @endforeach
+                </select>
+                @error('category')<span style="color:#dc2626;font-size:12px;margin-top:4px;display:block;">{{ $message }}</span>@enderror
+            </div>
             
             <div style="text-align:right;">
                 <button type="submit"
