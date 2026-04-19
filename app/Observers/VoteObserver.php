@@ -6,6 +6,7 @@ use App\Models\Answer;
 use App\Models\Question;
 use App\Models\User;
 use App\Models\Vote;
+use App\Notifications\VoteReceived;
 
 class VoteObserver
 {
@@ -15,6 +16,7 @@ class VoteObserver
     public function created(Vote $vote): void
     {
         $this->updateReputation($vote, 'add');
+        $this->sendNotification($vote);
     }
 
     /**
@@ -31,6 +33,9 @@ class VoteObserver
 
         // Ajouter la nouvelle réputation
         $this->updateReputation($vote, 'add', $newValue);
+
+        // Envoyer notification pour le nouveau vote
+        $this->sendNotification($vote);
     }
 
     /**
@@ -47,6 +52,43 @@ class VoteObserver
                 $voter->increment('reputation', 1);
             }
         }
+    }
+
+    /**
+     * Envoie une notification à l'auteur du contenu voté
+     */
+    private function sendNotification(Vote $vote): void
+    {
+        $votable = $vote->votable;
+        
+        if (!$votable || !$votable->user) {
+            return;
+        }
+
+        // Ne pas notifier si l'utilisateur vote sur son propre contenu
+        if ($vote->user_id === $votable->user->id) {
+            return;
+        }
+
+        // Déterminer le type et récupérer la question
+        if ($votable instanceof Question) {
+            $votableType = 'question';
+            $questionId = $votable->id;
+            $title = $votable->title;
+        } else {
+            $votableType = 'réponse';
+            $questionId = $votable->question_id;
+            $title = $votable->question->title;
+        }
+
+        // Envoyer la notification
+        $votable->user->notify(new VoteReceived(
+            votableType: $votableType,
+            votableId: $votable->id,
+            votableTitle: $title,
+            value: $vote->value,
+            questionId: $questionId
+        ));
     }
 
     /**

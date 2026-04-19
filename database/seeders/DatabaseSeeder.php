@@ -16,16 +16,54 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Création des utilisateurs
-        $moderator = User::factory()->create([
-            'name' => 'Modérateur',
-            'email' => 'mod@askcampus.com',
-            'reputation' => 1000,
+        // Création des utilisateurs avec mots de passe connus
+        $admin = User::factory()->create([
+            'name' => 'Administrateur',
+            'email' => 'admin@askcampus.com',
+            'password' => bcrypt('admin123'),
+            'reputation' => 2000,
             'is_moderator' => true,
+            'campus' => 'Administration',
         ]);
 
-        $users = User::factory(9)->create();
-        $allUsers = $users->push($moderator);
+        $moderator = User::factory()->create([
+            'name' => 'Modérateur Campus',
+            'email' => 'mod@askcampus.com',
+            'password' => bcrypt('mod123'),
+            'reputation' => 1000,
+            'is_moderator' => true,
+            'campus' => 'Sciences',
+        ]);
+
+        // Utilisateurs de test avec mots de passe connus
+        $testUser1 = User::factory()->create([
+            'name' => 'Étudiant Test',
+            'email' => 'etudiant@askcampus.com',
+            'password' => bcrypt('etudiant123'),
+            'reputation' => 150,
+            'campus' => 'Économie',
+        ]);
+
+        $testUser2 = User::factory()->create([
+            'name' => 'Marie Dupont',
+            'email' => 'marie@askcampus.com',
+            'password' => bcrypt('marie123'),
+            'reputation' => 300,
+            'campus' => 'Informatique',
+        ]);
+
+        // Votre compte personnel
+        $yourAccount = User::factory()->create([
+            'name' => 'Ellera',
+            'email' => 'ellera072@gmail.com',
+            'password' => bcrypt('ellera123'),
+            'reputation' => 500,
+            'is_moderator' => true,
+            'campus' => 'Informatique',
+        ]);
+
+        $users = User::factory(5)->create(); // Moins d'utilisateurs aléatoires
+        $allUsers = $users->push($admin)->push($moderator)->push($testUser1)->push($testUser2)->push($yourAccount);
 
         // Création des tags adaptés à la vie étudiante
         $tags = collect([
