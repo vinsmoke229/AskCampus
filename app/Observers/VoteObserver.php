@@ -2,6 +2,9 @@
 
 namespace App\Observers;
 
+use App\Models\Answer;
+use App\Models\Question;
+use App\Models\User;
 use App\Models\Vote;
 
 class VoteObserver
@@ -36,6 +39,14 @@ class VoteObserver
     public function deleted(Vote $vote): void
     {
         $this->updateReputation($vote, 'remove');
+
+        // Rembourser la pénalité si c'était un vote négatif
+        if ($vote->value < 0) {
+            $voter = User::find($vote->user_id);
+            if ($voter) {
+                $voter->increment('reputation', 1);
+            }
+        }
     }
 
     /**
@@ -59,16 +70,28 @@ class VoteObserver
             return;
         }
 
-        // Calculer le changement de réputation
-        // Vote positif : +10 points
-        // Vote négatif : -2 points
-        $reputationChange = $value > 0 ? 10 : -2;
+        // Distinguer Question vs Answer pour le calcul de réputation
+        if ($votable instanceof Question) {
+            // Vote sur question : +5 positif, -2 négatif
+            $reputationChange = $value > 0 ? 5 : -2;
+        } else {
+            // Vote sur réponse : +10 positif, -2 négatif
+            $reputationChange = $value > 0 ? 10 : -2;
+        }
 
-        // Appliquer ou retirer la réputation
+        // Appliquer ou retirer la réputation à l'auteur
         if ($action === 'add') {
             $author->increment('reputation', $reputationChange);
         } else {
             $author->decrement('reputation', $reputationChange);
+        }
+
+        // Pénalité pour celui qui vote négativement (-1 point)
+        if ($action === 'add' && $value < 0) {
+            $voter = User::find($vote->user_id);
+            if ($voter && $voter->id !== $author->id) {
+                $voter->decrement('reputation', 1);
+            }
         }
     }
 }
