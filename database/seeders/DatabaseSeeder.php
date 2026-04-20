@@ -8,6 +8,7 @@ use App\Models\Tag;
 use App\Models\User;
 use App\Models\Vote;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -17,53 +18,50 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Création des utilisateurs avec mots de passe connus
-        $admin = User::factory()->create([
+        $admin = User::create([
             'name' => 'Administrateur',
             'email' => 'admin@askcampus.com',
-            'password' => bcrypt('admin123'),
+            'password' => Hash::make('admin123'),
             'reputation' => 2000,
             'is_moderator' => true,
             'campus' => 'Administration',
         ]);
 
-        $moderator = User::factory()->create([
+        $moderator = User::create([
             'name' => 'Modérateur Campus',
             'email' => 'mod@askcampus.com',
-            'password' => bcrypt('mod123'),
+            'password' => Hash::make('mod123'),
             'reputation' => 1000,
             'is_moderator' => true,
             'campus' => 'Sciences',
         ]);
 
         // Utilisateurs de test avec mots de passe connus
-        $testUser1 = User::factory()->create([
+        $testUser1 = User::create([
             'name' => 'Étudiant Test',
             'email' => 'etudiant@askcampus.com',
-            'password' => bcrypt('etudiant123'),
+            'password' => Hash::make('etudiant123'),
             'reputation' => 150,
             'campus' => 'Économie',
         ]);
 
-        $testUser2 = User::factory()->create([
+        $testUser2 = User::create([
             'name' => 'Marie Dupont',
             'email' => 'marie@askcampus.com',
-            'password' => bcrypt('marie123'),
+            'password' => Hash::make('marie123'),
             'reputation' => 300,
             'campus' => 'Informatique',
         ]);
 
         // Votre compte personnel
-        $yourAccount = User::factory()->create([
+        $yourAccount = User::create([
             'name' => 'Ellera',
             'email' => 'ellera072@gmail.com',
-            'password' => bcrypt('ellera123'),
+            'password' => Hash::make('ellera123'),
             'reputation' => 500,
             'is_moderator' => true,
             'campus' => 'Informatique',
         ]);
-
-        $users = User::factory(5)->create(); // Moins d'utilisateurs aléatoires
-        $allUsers = $users->push($admin)->push($moderator)->push($testUser1)->push($testUser2)->push($yourAccount);
 
         // Création des tags adaptés à la vie étudiante
         $tags = collect([
@@ -106,79 +104,39 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Méthodologie', 'slug' => 'methodologie', 'description' => 'Méthodes de travail, organisation, efficacité'],
         ])->map(fn($tag) => Tag::create($tag));
 
-        // Création des questions avec tags
-        $questions = collect();
-        for ($i = 0; $i < 20; $i++) {
-            $question = Question::factory()->create([
-                'user_id' => $allUsers->random()->id,
-            ]);
+        // Création de quelques questions simples
+        $question1 = Question::create([
+            'user_id' => $testUser1->id,
+            'title' => 'Comment optimiser une requête Eloquent avec plusieurs jointures ?',
+            'body' => 'J\'ai une requête qui fait plusieurs jointures et elle est très lente. Comment puis-je l\'optimiser ?',
+            'views' => 45,
+        ]);
+        $question1->tags()->attach($tags->where('slug', 'laravel')->first()->id);
 
-            // Attacher 1 à 3 tags aléatoires
-            $question->tags()->attach(
-                $tags->random(rand(1, 3))->pluck('id')
-            );
+        $question2 = Question::create([
+            'user_id' => $testUser2->id,
+            'title' => 'Aide pour un exercice sur les matrices en Python',
+            'body' => 'Je dois multiplier deux matrices mais j\'ai des erreurs. Quelqu\'un peut m\'aider ?',
+            'views' => 23,
+        ]);
+        $question2->tags()->attach($tags->where('slug', 'python')->first()->id);
 
-            $questions->push($question);
-        }
+        // Quelques réponses
+        Answer::create([
+            'question_id' => $question1->id,
+            'user_id' => $admin->id,
+            'body' => 'Vous pouvez utiliser eager loading avec `with()` pour éviter le problème N+1.',
+            'is_accepted' => true,
+        ]);
 
-        // Création des réponses
-        $answers = collect();
-        foreach ($questions as $question) {
-            // Chaque question reçoit entre 1 et 5 réponses
-            $questionAnswers = Answer::factory(rand(1, 5))->create([
-                'question_id' => $question->id,
-                'user_id' => $allUsers->random()->id,
-            ]);
+        Answer::create([
+            'question_id' => $question2->id,
+            'user_id' => $moderator->id,
+            'body' => 'Utilisez numpy.dot() pour la multiplication de matrices en Python.',
+        ]);
 
-            $answers = $answers->merge($questionAnswers);
-
-            // Marquer aléatoirement une réponse sur trois comme acceptée
-            if ($questionAnswers->count() > 0 && rand(1, 3) === 1) {
-                $acceptedAnswer = $questionAnswers->random();
-                $acceptedAnswer->update(['is_accepted' => true]);
-                $question->update(['is_solved' => true]);
-            }
-        }
-
-        // Création des votes pour les questions
-        foreach ($questions as $question) {
-            // Chaque question reçoit entre 0 et 10 votes
-            $voteCount = rand(0, 10);
-            
-            for ($i = 0; $i < $voteCount; $i++) {
-                try {
-                    Vote::create([
-                        'user_id' => $allUsers->random()->id,
-                        'votable_type' => Question::class,
-                        'votable_id' => $question->id,
-                        'value' => rand(0, 1) ? 1 : -1, // 50/50 upvote/downvote
-                    ]);
-                } catch (\Exception $e) {
-                    // Ignorer les doublons (contrainte unique)
-                    continue;
-                }
-            }
-        }
-
-        // Création des votes pour les réponses
-        foreach ($answers as $answer) {
-            // Chaque réponse reçoit entre 0 et 8 votes
-            $voteCount = rand(0, 8);
-            
-            for ($i = 0; $i < $voteCount; $i++) {
-                try {
-                    Vote::create([
-                        'user_id' => $allUsers->random()->id,
-                        'votable_type' => Answer::class,
-                        'votable_id' => $answer->id,
-                        'value' => rand(0, 1) ? 1 : -1, // 50/50 upvote/downvote
-                    ]);
-                } catch (\Exception $e) {
-                    // Ignorer les doublons (contrainte unique)
-                    continue;
-                }
-            }
-        }
+        // Marquer la première question comme résolue
+        $question1->update(['is_solved' => true]);
 
         $this->command->info('✅ Base de données peuplée avec succès !');
         $this->command->info("📊 Statistiques :");
@@ -186,6 +144,5 @@ class DatabaseSeeder extends Seeder
         $this->command->info("   - Tags : " . Tag::count());
         $this->command->info("   - Questions : " . Question::count());
         $this->command->info("   - Réponses : " . Answer::count());
-        $this->command->info("   - Votes : " . Vote::count());
     }
 }
