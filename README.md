@@ -306,43 +306,10 @@ Le système utilise des **Observers** pour mettre à jour automatiquement la ré
 - **VoteObserver** : Gère les points lors de la création/modification/suppression de votes
 - **AnswerObserver** : Ajoute +20 points lors de l'acceptation d'une réponse
 
----
 
-## 📸 Captures d'écran
 
-### Page d'accueil
-> Liste des questions avec filtres et recherche
 
-### Page de question
-> Question détaillée avec réponses et système de votes
 
-### Dashboard étudiant
-> Statistiques personnelles et progression de réputation
-
----
-
-## 🧪 Tests
-
-Pour exécuter les tests :
-
-```bash
-php artisan test
-```
-
----
-
-## 📝 Roadmap
-
-- [ ] Système de commentaires sur les réponses
-- [ ] Notifications en temps réel
-- [ ] Messagerie privée entre étudiants
-- [ ] API RESTful pour application mobile
-- [ ] Système de modération avancé
-- [ ] Gamification avec niveaux et badges
-- [ ] Export de questions en PDF
-- [ ] Intégration d'éditeur Markdown
-
----
 
 ## 👨‍💻 Équipe
 
@@ -350,22 +317,22 @@ php artisan test
   <tr>
     <td align="center">
       <img src="https://via.placeholder.com/100" width="100px;" alt=""/><br />
-      <sub><b>[Nom Membre 1]</b></sub><br />
+      <sub><b>vinsmoke</b></sub><br />
       <sub>Lead Developer</sub>
     </td>
     <td align="center">
       <img src="https://via.placeholder.com/100" width="100px;" alt=""/><br />
-      <sub><b>[Nom Membre 2]</b></sub><br />
+      <sub><b>boss</b></sub><br />
       <sub>Backend Developer</sub>
     </td>
     <td align="center">
       <img src="https://via.placeholder.com/100" width="100px;" alt=""/><br />
-      <sub><b>[Nom Membre 3]</b></sub><br />
+      <sub><b>tia</b></sub><br />
       <sub>Frontend Developer</sub>
     </td>
     <td align="center">
       <img src="https://via.placeholder.com/100" width="100px;" alt=""/><br />
-      <sub><b>[Nom Membre 4]</b></sub><br />
+      <sub><b>odug</b></sub><br />
       <sub>UI/UX Designer</sub>
     </td>
   </tr>
