@@ -402,7 +402,7 @@ Pour toute question ou suggestion, n'hésitez pas à nous contacter :
 
 <div align="center">
 
-**Fait avec ❤️ par l'équipe AskCampus**
+**Fait par l'équipe AskCampus**
 
 ⭐ N'oubliez pas de mettre une étoile si ce projet vous plaît !
 
