@@ -41,4 +41,4 @@ RUN chown -R www-data:www-data /var/www \
 EXPOSE 8080
 
 # Start command
-CMD php artisan migrate:fresh --force && php artisan db:seed --force && php artisan serve --host=0.0.0.0 --port=8080
+CMD php artisan migrate:fresh --force && php artisan db:seed --force && php artisan serve --host=0.0.0.0 --port=$PORT
