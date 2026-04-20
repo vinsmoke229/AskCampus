@@ -17,7 +17,7 @@
 
 ## 📖 Présentation du projet
 
-**AskCampus** est une plateforme collaborative d'entraide académique conçue pour faciliter l'apprentissage et le partage de connaissances entre étudiants. Inspirée de StackOverflow, cette application offre un environnement structuré où les étudiants peuvent poser des questions, partager leurs connaissances et construire leur réputation académique.
+**AskCampus** est une plateforme collaborative d'entraide académique conçue pour faciliter l'apprentissage et le partage de connaissances entre étudiants.  Ceette application offre un environnement structuré où les étudiants peuvent poser des questions, partager leurs connaissances et construire leur réputation académique.
 
 ### 🎯 Objectifs
 
@@ -30,7 +30,7 @@
 
 - **Étudiants** : Posent des questions, répondent et gagnent en réputation
 - **Modérateurs** : Supervisent le contenu et maintiennent la qualité des échanges
-- **Enseignants** : Peuvent suivre les difficultés récurrentes des étudiants
+
 
 ---
 
@@ -55,7 +55,6 @@
 - Mise en évidence visuelle des réponses acceptées
 
 ### 🗳️ Système de votes polymorphe
-- Vote positif (+1) ou négatif (-1) sur questions et réponses
 - **Système de toggle** : re-voter annule le vote
 - Impact direct sur la réputation de l'auteur
 - Prévention des votes multiples (contrainte unique)
@@ -80,8 +79,8 @@
 - Badges et réalisations
 
 ### 🎨 Interface utilisateur moderne
-- Design épuré inspiré de StackOverflow
-- Interface responsive (mobile-first)
+- Design épuré
+- Interface responsive
 - Composants réutilisables avec Tailwind CSS
 - Expérience utilisateur optimisée
 
