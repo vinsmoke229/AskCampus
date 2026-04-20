@@ -23,3 +23,8 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Fichiers de déploiement (garder local seulement)
+DEPLOIEMENT_*.md
+COMPTES_TEST.md
+deploy.sh
