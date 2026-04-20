@@ -9,13 +9,6 @@ class VoteReceived extends Notification
 {
     use Queueable;
 
-    /**
-     * @param string $votableType  'question' ou 'answer'
-     * @param int    $votableId
-     * @param string $votableTitle Titre de la question
-     * @param int    $value        +1 ou -1
-     * @param int    $questionId   Pour construire l'URL
-     */
     public function __construct(
         public string $votableType,
         public int    $votableId,

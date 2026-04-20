@@ -6,7 +6,6 @@ use App\Http\Requests\VoteRequest;
 use App\Models\Answer;
 use App\Models\Question;
 use App\Models\Vote;
-use App\Notifications\VoteReceived;
 use Illuminate\Support\Facades\Gate;
 
 class VoteController extends Controller

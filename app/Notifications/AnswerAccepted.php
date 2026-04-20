@@ -2,7 +2,6 @@
 
 namespace App\Notifications;
 
-use App\Models\Answer;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -10,7 +9,11 @@ class AnswerAccepted extends Notification
 {
     use Queueable;
 
-    public function __construct(public Answer $answer) {}
+    public function __construct(
+        public int    $questionId,
+        public string $questionTitle,
+        public int    $answerId,
+    ) {}
 
     public function via(object $notifiable): array
     {
@@ -20,12 +23,12 @@ class AnswerAccepted extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'type'        => 'answer_accepted',
-            'message'     => 'Votre réponse a été acceptée !',
-            'question_id' => $this->answer->question_id,
-            'question_title' => $this->answer->question->title,
-            'answer_id'   => $this->answer->id,
-            'url'         => route('questions.show', $this->answer->question_id),
+            'type'           => 'answer_accepted',
+            'message'        => 'Votre réponse a été acceptée !',
+            'question_id'    => $this->questionId,
+            'question_title' => $this->questionTitle,
+            'answer_id'      => $this->answerId,
+            'url'            => route('questions.show', $this->questionId),
         ];
     }
 }

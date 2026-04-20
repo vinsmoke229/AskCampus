@@ -2,7 +2,6 @@
 
 namespace App\Notifications;
 
-use App\Models\Answer;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -10,7 +9,12 @@ class NewAnswerOnFollowedQuestion extends Notification
 {
     use Queueable;
 
-    public function __construct(public Answer $answer) {}
+    public function __construct(
+        public int    $questionId,
+        public string $questionTitle,
+        public string $answerAuthor,
+        public int    $answerId,
+    ) {}
 
     public function via(object $notifiable): array
     {
@@ -21,12 +25,12 @@ class NewAnswerOnFollowedQuestion extends Notification
     {
         return [
             'type'           => 'new_answer',
-            'message'        => 'Une nouvelle réponse a été postée sur une question que vous suivez.',
-            'question_id'    => $this->answer->question_id,
-            'question_title' => $this->answer->question->title,
-            'answer_id'      => $this->answer->id,
-            'answerer_name'  => $this->answer->user->name,
-            'url'            => route('questions.show', $this->answer->question_id),
+            'message'        => "{$this->answerAuthor} a répondu à une question que vous suivez.",
+            'question_id'    => $this->questionId,
+            'question_title' => $this->questionTitle,
+            'answer_id'      => $this->answerId,
+            'answerer_name'  => $this->answerAuthor,
+            'url'            => route('questions.show', $this->questionId),
         ];
     }
 }
