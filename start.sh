@@ -8,9 +8,14 @@ env | grep -i port || echo "No PORT variables found"
 php artisan migrate:fresh --force
 php artisan db:seed --force
 
-# Utiliser le port Railway ou 8080 par défaut
-FINAL_PORT=${PORT:-8080}
+# FORCER le port Railway
+if [ -z "$PORT" ]; then
+    FINAL_PORT=8080
+else
+    FINAL_PORT=$PORT
+fi
+
 echo "🚀 Starting server on port: $FINAL_PORT"
 
 # Démarrer le serveur
-php artisan serve --host=0.0.0.0 --port=$FINAL_PORT
+exec php artisan serve --host=0.0.0.0 --port=$FINAL_PORT
