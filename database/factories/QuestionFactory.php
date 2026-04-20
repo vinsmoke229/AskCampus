@@ -43,11 +43,11 @@ class QuestionFactory extends Factory
 
         return [
             'user_id' => User::factory(),
-            'title' => fake()->randomElement($titles),
-            'body' => fake()->paragraphs(3, true),
-            'is_solved' => fake()->boolean(30), // 30% de chances d'être résolu
-            'views' => fake()->numberBetween(0, 500),
-            'is_closed' => fake()->boolean(5), // 5% de chances d'être fermé
+            'title' => $this->faker->randomElement($titles),
+            'body' => $this->faker->paragraphs(3, true),
+            'is_solved' => $this->faker->boolean(30), // 30% de chances d'être résolu
+            'views' => $this->faker->numberBetween(0, 500),
+            'is_closed' => $this->faker->boolean(5), // 5% de chances d'être fermé
         ];
     }
 }

@@ -21,7 +21,7 @@ class AnswerFactory extends Factory
         return [
             'question_id' => Question::factory(),
             'user_id' => User::factory(),
-            'body' => fake()->paragraphs(2, true),
+            'body' => $this->faker->paragraphs(2, true),
             'is_accepted' => false, // Par défaut non accepté
         ];
     }

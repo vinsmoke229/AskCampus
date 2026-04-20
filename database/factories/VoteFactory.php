@@ -20,13 +20,13 @@ class VoteFactory extends Factory
     public function definition(): array
     {
         // Choisir aléatoirement entre Question et Answer
-        $votableType = fake()->randomElement([Question::class, Answer::class]);
+        $votableType = $this->faker->randomElement([Question::class, Answer::class]);
         
         return [
             'user_id' => User::factory(),
             'votable_type' => $votableType,
             'votable_id' => $votableType::factory(),
-            'value' => fake()->randomElement([1, -1]), // Upvote ou downvote
+            'value' => $this->faker->randomElement([1, -1]), // Upvote ou downvote
         ];
     }
 
